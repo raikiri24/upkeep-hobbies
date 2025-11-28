@@ -150,7 +150,7 @@ export const Home: React.FC = () => {
       <div>
         <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
           <Medal className="mr-3 text-indigo-600" />
-          Specialty Awards
+          Special Awards
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
