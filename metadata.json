@@ -1,0 +1,5 @@
+{
+  "name": "Upkeep Hobbies",
+  "description": "A comprehensive management system for hobby shops, featuring role-based access for Admins, Tournament Organizers, and Players. Includes inventory management, tournament tracking, and analytics.",
+  "requestFramePermissions": []
+}
