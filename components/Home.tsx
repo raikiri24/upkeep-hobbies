@@ -343,7 +343,7 @@ export const Home: React.FC = () => {
           <div className="grid grid-cols-1 gap-4">
             {/* Facebook - Active */}
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/UpkeepHobbiesOfficial"
               target="_blank"
               rel="noreferrer"
               className="flex items-center p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition-all group"
