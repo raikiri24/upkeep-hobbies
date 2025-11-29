@@ -11,6 +11,12 @@ import {
   ArrowRightFromLine,
   Flame,
   X,
+  Facebook,
+  Twitter,
+  Instagram,
+  Youtube,
+  Tv,
+  ExternalLink,
 } from "lucide-react";
 
 export const Home: React.FC = () => {
@@ -88,7 +94,7 @@ export const Home: React.FC = () => {
   const topExtreme = getTopStatPlayers("extremeFinishes");
 
   return (
-    <div className="space-y-10 pb-12 relative">
+    <div className="space-y-12 pb-12 relative">
       <div className="text-center md:text-left">
         <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">
           Beyblade Arena
@@ -146,11 +152,78 @@ export const Home: React.FC = () => {
         </div>
       )}
 
+      {/* General Leaderboard */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="p-6 border-b border-gray-100 bg-gray-50/50">
+          <h3 className="text-xl font-bold text-gray-900 flex items-center">
+            <Trophy className="mr-2 text-yellow-500" />
+            Top 5 Players
+          </h3>
+        </div>
+
+        <div className="divide-y divide-gray-100">
+          {topPlayers.map((player, index) => (
+            <div
+              key={player.id}
+              className="group flex items-center p-4 sm:p-6 hover:bg-indigo-50/30 transition-colors"
+            >
+              <div
+                className={`
+                flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full font-black text-lg mr-6 shadow-sm
+                ${
+                  index === 0
+                    ? "bg-yellow-100 text-yellow-700 ring-2 ring-yellow-200"
+                    : index === 1
+                    ? "bg-gray-100 text-gray-600 ring-2 ring-gray-200"
+                    : index === 2
+                    ? "bg-orange-100 text-orange-700 ring-2 ring-orange-200"
+                    : "bg-white text-gray-400 border border-gray-200"
+                }
+              `}
+              >
+                {index + 1}
+              </div>
+
+              <img
+                src={player.avatar}
+                alt={player.name}
+                className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white shadow-sm group-hover:scale-110 transition-transform duration-300"
+              />
+
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-gray-900 text-lg truncate group-hover:text-indigo-700 transition-colors">
+                  {player.name}
+                </h4>
+                <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
+                  <span className="flex items-center">
+                    <Zap size={12} className="mr-1" />{" "}
+                    {player.beybladeStats?.burstFinishes} Bursts
+                  </span>
+                  <span className="flex items-center">
+                    <RotateCw size={12} className="mr-1" />{" "}
+                    {player.beybladeStats?.spinFinishes} Spins
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className="block font-black text-2xl text-indigo-600 tracking-tight">
+                  {player.weeklyScore}
+                </span>
+                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                  Points
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Specialty Awards Grid */}
       <div>
         <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
           <Medal className="mr-3 text-indigo-600" />
-          Special Awards
+          Specialty Awards
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
@@ -220,70 +293,113 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* General Leaderboard */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-          <h3 className="text-xl font-bold text-gray-900 flex items-center">
-            <Trophy className="mr-2 text-yellow-500" />
-            Top 5 Players
-          </h3>
+      {/* Community & Socials Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8 border-t border-gray-200">
+        {/* Live Stream / Video */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+              <Tv className="mr-3 text-red-600" />
+              Live on Facebook
+            </h3>
+            <a
+              href="https://www.facebook.com/UpkeepHobbiesOfficial"
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center"
+            >
+              Visit Page <ExternalLink size={14} className="ml-1" />
+            </a>
+          </div>
+
+          {/* Video Container */}
+          <div className="bg-black rounded-xl overflow-hidden shadow-lg aspect-video relative group">
+            {/* Placeholder Content - Replace iframe src with your actual Facebook Embed URL */}
+            <iframe
+              src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2FUpkeepHobbiesOfficial%2Fvideos%2F1474924136931167%2F&show_text=false&width=267&t=0"
+              width="100%"
+              height="100%"
+              style={{ border: "none", overflow: "hidden" }}
+              scrolling="no"
+              frameBorder="0"
+              allowFullScreen={true}
+              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+              title="Facebook Live"
+              className="w-full h-full"
+            ></iframe>
+
+            {/* Overlay hint for the developer/owner */}
+            <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <p className="text-white font-medium">
+                Update iframe src in code with your Video URL
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="divide-y divide-gray-100">
-          {topPlayers.map((player, index) => (
-            <div
-              key={player.id}
-              className="group flex items-center p-4 sm:p-6 hover:bg-indigo-50/30 transition-colors"
+        {/* Social Media Links */}
+        <div className="space-y-6">
+          <h3 className="text-2xl font-bold text-gray-900">Follow Us</h3>
+          <div className="grid grid-cols-1 gap-4">
+            {/* Facebook - Active */}
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition-all group"
             >
-              <div
-                className={`
-                flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full font-black text-lg mr-6 shadow-sm
-                ${
-                  index === 0
-                    ? "bg-yellow-100 text-yellow-700 ring-2 ring-yellow-200"
-                    : index === 1
-                    ? "bg-gray-100 text-gray-600 ring-2 ring-gray-200"
-                    : index === 2
-                    ? "bg-orange-100 text-orange-700 ring-2 ring-orange-200"
-                    : "bg-white text-gray-400 border border-gray-200"
-                }
-              `}
-              >
-                {index + 1}
+              <div className="p-3 bg-blue-50 text-blue-600 rounded-full group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                <Facebook size={24} />
               </div>
-
-              <img
-                src={player.avatar}
-                alt={player.name}
-                className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white shadow-sm group-hover:scale-110 transition-transform duration-300"
+              <div className="ml-4">
+                <h4 className="font-bold text-gray-900">Facebook</h4>
+                <p className="text-xs text-gray-500">Join our community</p>
+              </div>
+              <ExternalLink
+                size={16}
+                className="ml-auto text-gray-300 group-hover:text-blue-500"
               />
+            </a>
 
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-gray-900 text-lg truncate group-hover:text-indigo-700 transition-colors">
-                  {player.name}
-                </h4>
-                <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
-                  <span className="flex items-center">
-                    <Zap size={12} className="mr-1" />{" "}
-                    {player.beybladeStats?.burstFinishes} Bursts
-                  </span>
-                  <span className="flex items-center">
-                    <RotateCw size={12} className="mr-1" />{" "}
-                    {player.beybladeStats?.spinFinishes} Spins
-                  </span>
-                </div>
+            {/* Instagram - In Progress */}
+            <div className="flex items-center p-4 bg-gray-50 border border-gray-200 rounded-xl opacity-75 cursor-not-allowed">
+              <div className="p-3 bg-gray-200 text-gray-500 rounded-full">
+                <Instagram size={24} />
               </div>
-
-              <div className="text-right">
-                <span className="block font-black text-2xl text-indigo-600 tracking-tight">
-                  {player.weeklyScore}
-                </span>
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                  Points
+              <div className="ml-4">
+                <h4 className="font-bold text-gray-500">Instagram</h4>
+                <span className="inline-block px-2 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded uppercase tracking-wider">
+                  Creating Page
                 </span>
               </div>
             </div>
-          ))}
+
+            {/* Twitter/X - In Progress */}
+            <div className="flex items-center p-4 bg-gray-50 border border-gray-200 rounded-xl opacity-75 cursor-not-allowed">
+              <div className="p-3 bg-gray-200 text-gray-500 rounded-full">
+                <Twitter size={24} />
+              </div>
+              <div className="ml-4">
+                <h4 className="font-bold text-gray-500">Twitter</h4>
+                <span className="inline-block px-2 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded uppercase tracking-wider">
+                  Creating Page
+                </span>
+              </div>
+            </div>
+
+            {/* YouTube - In Progress */}
+            <div className="flex items-center p-4 bg-gray-50 border border-gray-200 rounded-xl opacity-75 cursor-not-allowed">
+              <div className="p-3 bg-gray-200 text-gray-500 rounded-full">
+                <Youtube size={24} />
+              </div>
+              <div className="ml-4">
+                <h4 className="font-bold text-gray-500">YouTube</h4>
+                <span className="inline-block px-2 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded uppercase tracking-wider">
+                  Creating Page
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
