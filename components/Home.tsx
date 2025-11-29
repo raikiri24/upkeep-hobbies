@@ -97,10 +97,11 @@ export const Home: React.FC = () => {
     <div className="space-y-12 pb-12 relative">
       <div className="text-center md:text-left">
         <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-          Beyblade Arena
+          Upkeep Hobbies Community Stats
         </h2>
         <p className="text-gray-500 mt-2 text-lg">
-          Recognizing the masters of the stadium.
+          Honoring the stadium’s top performers, representing the peak of
+          excellence in the Upkeep community.
         </p>
       </div>
 
