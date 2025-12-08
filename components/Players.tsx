@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { api } from '../services/api';
 import { User } from '../types';
-import { Mail, Trophy, Search, ArrowUpDown } from 'lucide-react';
+import { Mail, Trophy, Search, ArrowUpDown, X } from 'lucide-react';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 
 type SortField = 'name' | 'email' | 'totalFinishes' | 'spinFinishes' | 'overFinishes' | 'burstFinishes' | 'extremeFinishes';
 type SortDirection = 'asc' | 'desc';
@@ -12,6 +13,7 @@ export const Players: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [selectedPlayer, setSelectedPlayer] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchPlayers = async () => {
@@ -98,6 +100,17 @@ export const Players: React.FC = () => {
            player.beybladeStats.burstFinishes + player.beybladeStats.extremeFinishes;
   };
 
+  const getRadarData = (player: User) => {
+    if (!player.beybladeStats) return [];
+    
+    return [
+      { stat: 'Spin', value: player.beybladeStats.spinFinishes },
+      { stat: 'Burst', value: player.beybladeStats.burstFinishes },
+      { stat: 'Over', value: player.beybladeStats.overFinishes },
+      { stat: 'Extreme', value: player.beybladeStats.extremeFinishes },
+    ];
+  };
+
   return (
     <div className="space-y-6">
       <div className="mb-6">
@@ -153,7 +166,11 @@ export const Players: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-6">
           {filteredPlayers.map((player) => (
-            <div key={player.id} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+            <div 
+              key={player.id} 
+              className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors cursor-pointer"
+              onClick={() => setSelectedPlayer(player)}
+            >
               <div className="flex items-center space-x-3 mb-3">
                 <img 
                   src={player.avatar} 
@@ -203,6 +220,108 @@ export const Players: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {selectedPlayer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <img 
+                    src={selectedPlayer.avatar} 
+                    alt={selectedPlayer.name}
+                    className="w-12 h-12 rounded-full"
+                  />
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">{selectedPlayer.name}</h3>
+                    <p className="text-sm text-gray-500">{selectedPlayer.email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedPlayer(null)}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X size={20} className="text-gray-500" />
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              {selectedPlayer.beybladeStats ? (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-4">Beyblade Statistics</h4>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <RadarChart data={getRadarData(selectedPlayer)}>
+                          <PolarGrid stroke="#e5e7eb" />
+                          <PolarAngleAxis dataKey="stat" tick={{ fill: '#6b7280' }} />
+                          <PolarRadiusAxis 
+                            angle={90} 
+                            domain={[0, 'dataMax']} 
+                            tick={{ fill: '#6b7280' }}
+                          />
+                          <Radar 
+                            name={selectedPlayer.name} 
+                            dataKey="value" 
+                            stroke="#3b82f6" 
+                            fill="#3b82f6" 
+                            fillOpacity={0.6}
+                          />
+                        </RadarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="text-sm text-gray-500 mb-1">Total Finishes</div>
+                      <div className="text-2xl font-bold text-gray-900">{totalFinishes(selectedPlayer)}</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="text-sm text-gray-500 mb-1">Best Category</div>
+                      <div className="text-2xl font-bold text-gray-900">
+                        {(() => {
+                          const stats = selectedPlayer.beybladeStats!;
+                          const max = Math.max(stats.spinFinishes, stats.burstFinishes, stats.overFinishes, stats.extremeFinishes);
+                          if (max === stats.spinFinishes) return 'Spin';
+                          if (max === stats.burstFinishes) return 'Burst';
+                          if (max === stats.overFinishes) return 'Over';
+                          return 'Extreme';
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                      <span className="text-sm font-medium text-blue-900">Spin Finishes</span>
+                      <span className="text-lg font-bold text-blue-600">{selectedPlayer.beybladeStats.spinFinishes}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                      <span className="text-sm font-medium text-green-900">Burst Finishes</span>
+                      <span className="text-lg font-bold text-green-600">{selectedPlayer.beybladeStats.burstFinishes}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                      <span className="text-sm font-medium text-yellow-900">Over Finishes</span>
+                      <span className="text-lg font-bold text-yellow-600">{selectedPlayer.beybladeStats.overFinishes}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                      <span className="text-sm font-medium text-purple-900">Extreme Finishes</span>
+                      <span className="text-lg font-bold text-purple-600">{selectedPlayer.beybladeStats.extremeFinishes}</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <Trophy size={48} className="mx-auto mb-4 text-gray-300" />
+                  <p>No Beyblade statistics available for this player.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
