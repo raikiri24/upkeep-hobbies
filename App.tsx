@@ -3,6 +3,8 @@ import { Layout } from './components/Layout';
 import { Shop } from './components/Shop';
 import { Tournaments } from './components/Tournaments';
 import { Home } from './components/Home';
+import { Players } from './components/Players';
+import PBBLTeamUpdates from './components/PBBLTeamUpdates'; // Import the new component
 import { User } from './types';
 
 const App: React.FC = () => {
@@ -25,6 +27,10 @@ const App: React.FC = () => {
         return <Shop user={currentUser} />;
       case 'tournaments':
         return <Tournaments user={currentUser} />;
+      case 'players':
+        return <Players />;
+      case 'pbblTeamUpdates': // New case for PBBL Team Updates
+        return <PBBLTeamUpdates />; 
       default:
         return <Home />;
     }

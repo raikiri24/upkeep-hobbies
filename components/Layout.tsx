@@ -1,6 +1,6 @@
 import React from "react";
 import { User } from "../types";
-import { ShoppingBag, Trophy, Menu, Home } from "lucide-react";
+import { ShoppingBag, Trophy, Menu, Home, ShieldHalf, Users } from "lucide-react"; // Added ShieldHalf icon
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,8 +22,10 @@ export const Layout: React.FC<LayoutProps> = ({
   // Removed Dashboard from navItems
   const navItems = [
     { id: "home", label: "Home", icon: Home },
+    { id: "players", label: "Players", icon: Users },
     { id: "tournaments", label: "Tournaments", icon: Trophy },
     { id: "shop", label: "Shop", icon: ShoppingBag },
+    { id: "pbblTeamUpdates", label: "PBBL Team Updates", icon: ShieldHalf }, // Added new navigation item
   ];
 
   return (
