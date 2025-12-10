@@ -24,6 +24,12 @@ export const Players: React.FC = () => {
     fetchPlayers();
   }, []);
 
+  const totalFinishes = (player: User) => {
+    if (!player.beybladeStats) return 0;
+    return player.beybladeStats.spinFinishes + player.beybladeStats.overFinishes + 
+           player.beybladeStats.burstFinishes + player.beybladeStats.extremeFinishes;
+  };
+
   const filteredPlayers = useMemo(() => {
     let filtered = players;
     
@@ -93,12 +99,6 @@ export const Players: React.FC = () => {
   };
 
   if (loading) return <div className="p-8 text-center text-gray-500">Loading players...</div>;
-
-  const totalFinishes = (player: User) => {
-    if (!player.beybladeStats) return 0;
-    return player.beybladeStats.spinFinishes + player.beybladeStats.overFinishes + 
-           player.beybladeStats.burstFinishes + player.beybladeStats.extremeFinishes;
-  };
 
   const getRadarData = (player: User) => {
     if (!player.beybladeStats) return [];
