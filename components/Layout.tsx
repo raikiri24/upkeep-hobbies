@@ -1,6 +1,6 @@
 import React from "react";
 import { User } from "../types";
-import { ShoppingBag, Trophy, Menu, Home, ShieldHalf, Users } from "lucide-react"; // Added ShieldHalf icon
+import { ShoppingBag, Trophy, Menu, Home, ShieldHalf, Users, User as UserIcon } from "lucide-react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,21 +19,20 @@ export const Layout: React.FC<LayoutProps> = ({
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
-  // Removed Dashboard from navItems
   const navItems = [
-    { id: "home", label: "Home", icon: Home },
-    { id: "players", label: "Players", icon: Users },
-    { id: "tournaments", label: "Tournaments", icon: Trophy },
-    { id: "shop", label: "Shop", icon: ShoppingBag },
-    { id: "pbblTeamUpdates", label: "PBBL Team Updates", icon: ShieldHalf }, // Added new navigation item
+    { id: "home", label: "Home", icon: Home, description: "Dashboard overview" },
+    { id: "players", label: "Players", icon: Users, description: "View all players" },
+    { id: "tournaments", label: "Tournaments", icon: Trophy, description: "Upcoming & past" },
+    { id: "shop", label: "Shop", icon: ShoppingBag, description: "Browse products" },
+    { id: "pbblTeamUpdates", label: "PBBL Updates", icon: ShieldHalf, description: "Team news" },
   ];
 
   return (
-    <div className="min-h-screen flex bg-gray-50 font-sans text-slate-800">
+    <div className="min-h-screen flex font-sans text-white">
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 z-20 bg-black/50 md:hidden"
+          className="fixed inset-0 z-20 bg-black/60 backdrop-blur-sm md:hidden animate-fade-in"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
@@ -41,19 +40,47 @@ export const Layout: React.FC<LayoutProps> = ({
       {/* Sidebar */}
       <aside
         className={`
-        fixed inset-y-0 left-0 z-30 w-64 bg-slate-900 text-white transform transition-transform duration-200 ease-in-out
+        fixed inset-y-0 left-0 z-30 w-64 sm:w-72 glass-sidebar text-white transform transition-all duration-300 ease-in-out
         ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
-        md:relative md:translate-x-0
+        md:relative md:translate-x-0 animate-slide-in
       `}
       >
-        <div className="p-6 border-b border-slate-700 flex justify-center items-center">
-          {/* SVG Logo Implementation with inline styles for React compatibility */}
-          <div className="w-full max-w-[200px]">
-            <img src="./logo.png" alt="" />
+        {/* Logo Section */}
+        <div className="p-4 sm:p-8 border-b border-white/10">
+          <div className="flex flex-col items-center space-y-3 sm:space-y-4">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl glass-button flex items-center justify-center animate-float">
+              <img src="./logo.png" alt="Upkeep Hobbies" className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl" />
+            </div>
+            <div className="text-center">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                Upkeep Hobbies
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-300 mt-1">Beyblade League Manager</p>
+            </div>
           </div>
         </div>
 
-        <nav className="p-4 space-y-2">
+        {/* User Profile Section */}
+        <div className="p-4 sm:p-6 border-b border-white/10">
+          <div className="flex items-center space-x-2 sm:space-x-3 glass-button p-2 sm:p-3 rounded-xl">
+            <div className="relative">
+              <img 
+                src={user.avatar} 
+                alt={user.name}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white/20"
+              />
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded-full border-2 border-white/20"></div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-white text-sm sm:text-base truncate">{user.name}</p>
+              <p className="text-xs sm:text-sm text-gray-300 truncate">{user.email}</p>
+            </div>
+            <UserIcon size={14} className="hidden sm:block text-gray-300" />
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="p-3 sm:p-4 space-y-2 flex-1">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -61,31 +88,64 @@ export const Layout: React.FC<LayoutProps> = ({
                 onNavigate(item.id);
                 setIsMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
-                currentView === item.id
-                  ? "bg-blue-600 text-white"
-                  : "text-slate-400 hover:bg-slate-800 hover:text-white"
-              }`}
+              className={`
+                w-full flex items-center space-x-3 sm:space-x-4 px-3 py-3 sm:px-4 sm:py-4 rounded-xl transition-all duration-200 group
+                ${currentView === item.id
+                  ? "glass-button bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-400/30 text-white"
+                  : "text-gray-300 hover:text-white hover:bg-white/10"
+                }
+              `}
             >
-              <item.icon size={20} />
-              <span>{item.label}</span>
+              <div className={`
+                p-2 rounded-lg transition-all duration-200 flex items-center justify-center
+                ${currentView === item.id 
+                  ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white" 
+                  : "bg-white/10 group-hover:bg-white/20"
+                }
+              `}>
+                <item.icon size={18} className="sm:w-5 sm:h-5" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="font-medium text-sm sm:text-base">{item.label}</p>
+                <p className="text-xs text-gray-400 hidden sm:block">{item.description}</p>
+              </div>
             </button>
           ))}
         </nav>
+
+        {/* Footer */}
+        <div className="p-3 sm:p-4 border-t border-white/10">
+          <div className="text-center text-xs text-gray-400">
+            <p>© 2024 Upkeep Hobbies</p>
+            <p className="mt-1">Version 1.0.0</p>
+          </div>
+        </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto h-screen">
-        <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between md:hidden sticky top-0 z-10">
-          <h2 className="font-semibold text-lg capitalize">{currentView}</h2>
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="p-2 hover:bg-gray-100 rounded-md"
-          >
-            <Menu size={24} />
-          </button>
+      <main className="flex-1 overflow-auto">
+        {/* Mobile Header */}
+        <header className="glass-card sticky top-0 z-10 m-2 sm:m-4 p-3 sm:p-4 flex items-center justify-between md:hidden animate-fade-in">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="glass-button p-2 rounded-lg flex items-center justify-center"
+            >
+              <Menu size={18} className="sm:w-5 sm:h-5" />
+            </button>
+            <h1 className="text-lg sm:text-xl font-bold capitalize">{currentView.replace(/([A-Z])/g, ' $1').trim()}</h1>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 rounded-full glass-button flex items-center justify-center">
+              <img src={user.avatar} alt={user.name} className="w-6 h-6 rounded-full" />
+            </div>
+          </div>
         </header>
-        <div className="p-4 md:p-8 max-w-7xl mx-auto">{children}</div>
+
+        {/* Content Area */}
+        <div className="p-2 sm:p-4 md:p-8 max-w-7xl mx-auto animate-fade-in">
+          {children}
+        </div>
       </main>
     </div>
   );

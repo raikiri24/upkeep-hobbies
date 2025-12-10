@@ -33,7 +33,6 @@ export const Home: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch all users to calculate stats locally for this view
       const data = await api.getAllUsers();
       setUsers(data);
       setLoading(false);
@@ -49,43 +48,14 @@ export const Home: React.FC = () => {
     );
   }
 
-  // Calculate Rankings with Tie Breakers
-  const topPlayers = [...users]
-    .sort((a, b) => {
-      // 1. Primary: Weekly Score (Wins) - Descending
-      const scoreA = a.weeklyScore || 0;
-      const scoreB = b.weeklyScore || 0;
-      if (scoreB !== scoreA) return scoreB - scoreA;
-
-      // 2. Secondary: Point Differential (Wins - Losses) - Descending
-      const diffA = a.cumulativeDiff || 0;
-      const diffB = b.cumulativeDiff || 0;
-      if (diffB !== diffA) return diffB - diffA;
-
-      // 3. Tertiary: Tournament Rank - Ascending (Lower is better)
-      // If no rank (0 or undefined), push to bottom
-      const rankA = a.rank && a.rank > 0 ? a.rank : 999999;
-      const rankB = b.rank && b.rank > 0 ? b.rank : 999999;
-      return rankA - rankB;
-    })
-    .slice(0, 5);
-
-  const champion = topPlayers[0];
-
-  // Specialized Finishers with Tie Breaking
-  const getTopStatPlayers = (
-    statKey: keyof NonNullable<User["beybladeStats"]>
-  ) => {
-    if (users.length === 0) return [];
-
-    const maxVal = Math.max(
-      ...users.map((u) => u.beybladeStats?.[statKey] || 0)
-    );
-
-    // If max is 0, no one wins
-    if (maxVal === 0) return [];
-
-    return users.filter((u) => (u.beybladeStats?.[statKey] || 0) === maxVal);
+  const getTopStatPlayers = (stat: keyof User["beybladeStats"]) => {
+    return users
+      .filter((user) => user.beybladeStats && user.beybladeStats[stat] > 0)
+      .sort(
+        (a, b) =>
+          (b.beybladeStats?.[stat] || 0) - (a.beybladeStats?.[stat] || 0)
+      )
+      .slice(0, 5);
   };
 
   const topSpin = getTopStatPlayers("spinFinishes");
@@ -93,56 +63,67 @@ export const Home: React.FC = () => {
   const topOver = getTopStatPlayers("overFinishes");
   const topExtreme = getTopStatPlayers("extremeFinishes");
 
+  const topPlayers = users
+    .filter((user) => user.weeklyScore > 0)
+    .sort((a, b) => b.weeklyScore - a.weeklyScore)
+    .slice(0, 5);
+
+  const champion = topPlayers[0];
+
   return (
     <div className="space-y-12 pb-12 relative">
-      <div className="text-center md:text-left">
-        <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">
-          Upkeep Hobbies Community Stats
+      {/* Header Section */}
+      <div className="text-center space-y-3 sm:space-y-4 animate-fade-in px-4">
+        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+          Upkeep Hobbies
+        </h1>
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
+          Community Stats
         </h2>
-        <p className="text-gray-500 mt-2 text-lg">
-          Honoring the stadium’s top performers, representing the peak of
+        <p className="text-base sm:text-lg text-blue-200 max-w-3xl mx-auto">
+          Honoring the stadium's top performers, representing the peak of
           excellence in the Upkeep community.
         </p>
       </div>
 
       {/* Hero: Player of the Week */}
       {champion && (
-        <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 rounded-3xl shadow-2xl text-white p-8 md:p-12 border border-indigo-500/30">
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-indigo-500 opacity-20 rounded-full blur-[100px]"></div>
-          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-blue-500 opacity-20 rounded-full blur-[100px]"></div>
+        <div className="glass-card p-8 md:p-12 animate-scale-in relative">
+          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-gradient-to-r from-blue-500 to-cyan-500 opacity-20 rounded-full blur-[100px]"></div>
+          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-20 rounded-full blur-[100px]"></div>
 
-          <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
+          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
             <div className="relative group">
-              <div className="absolute -top-6 -left-6 text-yellow-400 animate-bounce drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]">
-                <Crown size={56} fill="currentColor" />
+              <div className="absolute -top-6 -left-6 lg:-top-8 lg:-left-8 text-yellow-400 animate-bounce drop-shadow-[0_0_20px_rgba(250,204,21,0.6)] flex items-center justify-center">
+                <Crown size={48} fill="currentColor" />
               </div>
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
               <img
                 src={champion.avatar}
                 alt={champion.name}
-                className="relative w-40 h-40 md:w-48 md:h-48 rounded-full border-4 border-white shadow-2xl object-cover"
+                className="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full border-4 border-white/30 shadow-2xl object-cover"
               />
-              <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-500 to-orange-600 text-white text-sm font-black px-6 py-2 rounded-full shadow-lg tracking-wider uppercase whitespace-nowrap border border-orange-400">
+              <div className="absolute -bottom-3 lg:-bottom-4 left-1/2 transform -translate-x-1/2 glass-button px-4 py-1 lg:px-6 lg:py-2 rounded-full shadow-lg tracking-wider uppercase whitespace-nowrap border-blue-400/50 text-xs sm:text-sm">
                 #1 Champion
               </div>
             </div>
 
-            <div className="text-center md:text-left space-y-4">
-              <div className="inline-flex items-center space-x-2 bg-white/10 px-4 py-1.5 rounded-full backdrop-blur-md text-sm font-semibold text-indigo-200 border border-white/10">
+            <div className="text-center lg:text-left space-y-3 lg:space-y-4">
+              <div className="inline-flex items-center space-x-2 glass-button px-3 py-1 lg:px-4 lg:py-2 rounded-full text-xs sm:text-sm font-semibold text-white border-blue-400/50">
                 <Star
                   size={14}
-                  className="text-yellow-400"
+                  className="text-yellow-400 flex-shrink-0"
                   fill="currentColor"
                 />
                 <span className="tracking-wide">PLAYER OF THE WEEK</span>
               </div>
               <div>
-                <h3 className="text-4xl md:text-6xl font-black tracking-tight">
+                <h3 className="text-2xl sm:text-4xl lg:text-6xl font-black tracking-tight text-white">
                   {champion.name}
                 </h3>
-                <p className="text-indigo-200 text-xl mt-2 font-light">
+                <p className="text-blue-200 text-base sm:text-xl lg:text-xl mt-2 font-light">
                   Dominating with{" "}
-                  <span className="font-bold text-white">
+                  <span className="font-bold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
                     {champion.weeklyScore}
                   </span>{" "}
                   points
@@ -154,31 +135,31 @@ export const Home: React.FC = () => {
       )}
 
       {/* General Leaderboard */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-          <h3 className="text-xl font-bold text-gray-900 flex items-center">
-            <Trophy className="mr-2 text-yellow-500" />
+      <div className="glass-card overflow-hidden animate-fade-in">
+        <div className="p-6 border-b border-blue-400/30">
+          <h3 className="text-2xl font-bold text-white flex items-center">
+            <Trophy className="mr-3 text-yellow-400" />
             Top 5 Players
           </h3>
         </div>
 
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-white/10">
           {topPlayers.map((player, index) => (
             <div
               key={player.id}
-              className="group flex items-center p-4 sm:p-6 hover:bg-indigo-50/30 transition-colors"
+              className="group flex items-center p-4 sm:p-6 hover:bg-blue-500/10 transition-all duration-300"
             >
               <div
                 className={`
-                flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full font-black text-lg mr-6 shadow-sm
+                flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full font-black text-lg mr-6 shadow-lg
                 ${
                   index === 0
-                    ? "bg-yellow-100 text-yellow-700 ring-2 ring-yellow-200"
+                    ? "glass-button bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
                     : index === 1
-                    ? "bg-gray-100 text-gray-600 ring-2 ring-gray-200"
+                    ? "glass-button bg-gradient-to-r from-gray-400 to-gray-600 text-white"
                     : index === 2
-                    ? "bg-orange-100 text-orange-700 ring-2 ring-orange-200"
-                    : "bg-white text-gray-400 border border-gray-200"
+                    ? "glass-button bg-gradient-to-r from-orange-500 to-red-500 text-white"
+                    : "glass-button text-gray-300"
                 }
               `}
               >
@@ -188,30 +169,36 @@ export const Home: React.FC = () => {
               <img
                 src={player.avatar}
                 alt={player.name}
-                className="w-12 h-12 rounded-full object-cover mr-4 border-2 border-white shadow-sm group-hover:scale-110 transition-transform duration-300"
+                className="w-14 h-14 rounded-full object-cover mr-4 border-3 border-white/30 shadow-lg group-hover:scale-110 transition-transform duration-300"
               />
 
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-gray-900 text-lg truncate group-hover:text-indigo-700 transition-colors">
+                <h4 className="font-bold text-white text-lg truncate group-hover:text-cyan-300 transition-colors">
                   {player.name}
                 </h4>
-                <div className="flex items-center space-x-4 text-xs text-gray-500 mt-1">
-                  <span className="flex items-center">
-                    <Zap size={12} className="mr-1" />{" "}
+                <div className="flex items-center space-x-4 text-xs text-blue-200 mt-1">
+                  <span className="flex items-center glass-button px-2 py-1 rounded-lg">
+                    <Zap
+                      size={12}
+                      className="mr-1 text-yellow-400 flex-shrink-0"
+                    />{" "}
                     {player.beybladeStats?.burstFinishes} Bursts
                   </span>
-                  <span className="flex items-center">
-                    <RotateCw size={12} className="mr-1" />{" "}
+                  <span className="flex items-center glass-button px-2 py-1 rounded-lg">
+                    <RotateCw
+                      size={12}
+                      className="mr-1 text-cyan-400 flex-shrink-0"
+                    />{" "}
                     {player.beybladeStats?.spinFinishes} Spins
                   </span>
                 </div>
               </div>
 
               <div className="text-right">
-                <span className="block font-black text-2xl text-indigo-600 tracking-tight">
+                <span className="block font-black text-3xl bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent tracking-tight flex-shrink-0">
                   {player.weeklyScore}
                 </span>
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <span className="text-xs font-bold text-blue-300 uppercase tracking-wider">
                   Points
                 </span>
               </div>
@@ -221,12 +208,12 @@ export const Home: React.FC = () => {
       </div>
 
       {/* Specialty Awards Grid */}
-      <div>
-        <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-          <Medal className="mr-3 text-indigo-600" />
+      <div className="animate-fade-in">
+        <h3 className="text-3xl font-bold text-white mb-8 flex items-center">
+          <Medal className="mr-3 text-yellow-400" />
           Specialty Awards
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <StatCard
             title="Burst King"
             players={topBurst}
@@ -252,7 +239,7 @@ export const Home: React.FC = () => {
             description="Spin longevity"
             onClick={() =>
               setSelectedStat({
-                title: "Pocket Master",
+                title: "Spin Master",
                 players: topSpin,
                 icon: RotateCw,
                 color: "blue",
@@ -281,7 +268,7 @@ export const Home: React.FC = () => {
             value={topExtreme[0]?.beybladeStats?.extremeFinishes}
             icon={Flame}
             color="purple"
-            description="High Impact knockouts"
+            description="High Impact Knockouts"
             onClick={() =>
               setSelectedStat({
                 title: "Extreme Finisher",
@@ -295,26 +282,26 @@ export const Home: React.FC = () => {
       </div>
 
       {/* Community & Socials Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8 border-t border-gray-200">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pt-6 lg:pt-8 border-t border-blue-400/30 animate-fade-in">
         {/* Live Stream / Video */}
         <div className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-2xl font-bold text-gray-900 flex items-center">
-              <Tv className="mr-3 text-red-600" />
+            <h3 className="text-3xl font-bold text-white flex items-center">
+              <Tv className="mr-3 text-red-400" />
               Live on Facebook
             </h3>
             <a
-              href="https://www.facebook.com/UpkeepHobbiesOfficial"
+              href="https://www.facebook.com/profile.php?id=100083603391159"
               target="_blank"
               rel="noreferrer"
-              className="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center"
+              className="glass-button px-4 py-2 text-sm font-semibold text-cyan-300 hover:text-white flex items-center"
             >
               Visit Page <ExternalLink size={14} className="ml-1" />
             </a>
           </div>
 
           {/* Video Container */}
-          <div className="bg-black rounded-xl overflow-hidden shadow-lg aspect-video relative group">
+          <div className="glass-card rounded-2xl overflow-hidden shadow-2xl aspect-video relative group">
             {/* Placeholder Content - Replace iframe src with your actual Facebook Embed URL */}
             <iframe
               src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2FUpkeepHobbiesOfficial%2Fvideos%2F1474924136931167%2F&show_text=false&width=267&t=0"
@@ -331,7 +318,7 @@ export const Home: React.FC = () => {
 
             {/* Overlay hint for the developer/owner */}
             <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              <p className="text-white font-medium">
+              <p className="text-white font-medium glass-button px-4 py-2 rounded-lg">
                 Update iframe src in code with your Video URL
               </p>
             </div>
@@ -340,64 +327,72 @@ export const Home: React.FC = () => {
 
         {/* Social Media Links */}
         <div className="space-y-6">
-          <h3 className="text-2xl font-bold text-gray-900">Follow Us</h3>
+          <h3 className="text-3xl font-bold text-white">Follow Us</h3>
           <div className="grid grid-cols-1 gap-4">
             {/* Facebook - Active */}
             <a
-              href="https://www.facebook.com/UpkeepHobbiesOfficial"
+              href="https://www.facebook.com/profile.php?id=100083603391159"
               target="_blank"
               rel="noreferrer"
-              className="flex items-center p-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-blue-500 hover:text-blue-600 transition-all group"
+              className="glass-card p-4 hover:scale-105 transition-all duration-300 group"
             >
-              <div className="p-3 bg-blue-50 text-blue-600 rounded-full group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <Facebook size={24} />
+              <div className="flex items-center">
+                <div className="p-3 glass-button bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full group-hover:scale-110 transition-transform flex items-center justify-center">
+                  <Facebook size={24} className="flex-shrink-0" />
+                </div>
+                <div className="ml-4 flex-1">
+                  <h4 className="font-bold text-white">Facebook</h4>
+                  <p className="text-xs text-blue-200">Join our community</p>
+                </div>
+                <ExternalLink
+                  size={16}
+                  className="text-blue-300 group-hover:text-cyan-400 transition-colors flex-shrink-0"
+                />
               </div>
-              <div className="ml-4">
-                <h4 className="font-bold text-gray-900">Facebook</h4>
-                <p className="text-xs text-gray-500">Join our community</p>
-              </div>
-              <ExternalLink
-                size={16}
-                className="ml-auto text-gray-300 group-hover:text-blue-500"
-              />
             </a>
 
             {/* Instagram - In Progress */}
-            <div className="flex items-center p-4 bg-gray-50 border border-gray-200 rounded-xl opacity-75 cursor-not-allowed">
-              <div className="p-3 bg-gray-200 text-gray-500 rounded-full">
-                <Instagram size={24} />
-              </div>
-              <div className="ml-4">
-                <h4 className="font-bold text-gray-500">Instagram</h4>
-                <span className="inline-block px-2 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded uppercase tracking-wider">
-                  Creating Page
-                </span>
+            <div className="glass-card p-4 opacity-60 cursor-not-allowed">
+              <div className="flex items-center">
+                <div className="p-3 glass-button bg-gray-500 text-gray-300 rounded-full flex items-center justify-center">
+                  <Instagram size={24} className="flex-shrink-0" />
+                </div>
+                <div className="ml-4 flex-1">
+                  <h4 className="font-bold text-blue-300">Instagram</h4>
+                  <span className="inline-block px-2 py-0.5 glass-button text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">
+                    Creating Page
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* Twitter/X - In Progress */}
-            <div className="flex items-center p-4 bg-gray-50 border border-gray-200 rounded-xl opacity-75 cursor-not-allowed">
-              <div className="p-3 bg-gray-200 text-gray-500 rounded-full">
-                <Twitter size={24} />
-              </div>
-              <div className="ml-4">
-                <h4 className="font-bold text-gray-500">Twitter</h4>
-                <span className="inline-block px-2 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded uppercase tracking-wider">
-                  Creating Page
-                </span>
+            <div className="glass-card p-4 opacity-60 cursor-not-allowed">
+              <div className="flex items-center">
+                <div className="p-3 glass-button bg-gray-500 text-gray-300 rounded-full flex items-center justify-center">
+                  <Twitter size={24} className="flex-shrink-0" />
+                </div>
+                <div className="ml-4 flex-1">
+                  <h4 className="font-bold text-blue-300">Twitter</h4>
+                  <span className="inline-block px-2 py-0.5 glass-button text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">
+                    Creating Page
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* YouTube - In Progress */}
-            <div className="flex items-center p-4 bg-gray-50 border border-gray-200 rounded-xl opacity-75 cursor-not-allowed">
-              <div className="p-3 bg-gray-200 text-gray-500 rounded-full">
-                <Youtube size={24} />
-              </div>
-              <div className="ml-4">
-                <h4 className="font-bold text-gray-500">YouTube</h4>
-                <span className="inline-block px-2 py-0.5 bg-gray-200 text-gray-600 text-[10px] font-bold rounded uppercase tracking-wider">
-                  Creating Page
-                </span>
+            <div className="glass-card p-4 opacity-60 cursor-not-allowed">
+              <div className="flex items-center">
+                <div className="p-3 glass-button bg-gray-500 text-gray-300 rounded-full flex items-center justify-center">
+                  <Youtube size={24} className="flex-shrink-0" />
+                </div>
+                <div className="ml-4 flex-1">
+                  <h4 className="font-bold text-blue-300">YouTube</h4>
+                  <span className="inline-block px-2 py-0.5 glass-button text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">
+                    Creating Page
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -406,12 +401,12 @@ export const Home: React.FC = () => {
 
       {/* Specialty Modal */}
       {selectedStat && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
             onClick={() => setSelectedStat(null)}
           />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200">
+          <div className="relative glass-modal w-full max-w-md overflow-hidden transform transition-all animate-scale-in">
             {/* Modal Header */}
             <div
               className={`p-6 text-white bg-gradient-to-r ${
@@ -426,12 +421,12 @@ export const Home: React.FC = () => {
             >
               <button
                 onClick={() => setSelectedStat(null)}
-                className="absolute top-4 right-4 p-1 bg-white/20 hover:bg-white/30 rounded-full transition-colors text-white"
+                className="absolute top-4 right-4 p-2 glass-button hover:bg-white/30 rounded-full transition-colors text-white"
               >
                 <X size={20} />
               </button>
               <div className="flex items-center space-x-3 mb-1">
-                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
+                <div className="p-3 glass-button">
                   <selectedStat.icon size={24} />
                 </div>
                 <h3 className="text-2xl font-black uppercase tracking-wide">
@@ -445,55 +440,94 @@ export const Home: React.FC = () => {
 
             {/* Modal Content */}
             <div className="p-0 max-h-[60vh] overflow-y-auto">
-              <div className="divide-y divide-gray-100">
-                {selectedStat.players.map((player) => (
+              <div className="divide-y divide-blue-400/20">
+                {selectedStat.players.map((player, index) => (
                   <div
                     key={player.id}
-                    className="flex items-center p-4 hover:bg-gray-50 transition-colors"
+                    className="group flex items-center p-3 sm:p-4 sm:p-6 hover:bg-blue-500/10 transition-all duration-300"
                   >
+                    <div
+                      className={`
+                        flex-shrink-0 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full font-black text-base sm:text-lg mr-4 sm:mr-6 shadow-lg
+                        ${
+                          index === 0
+                            ? "glass-button bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
+                            : index === 1
+                            ? "glass-button bg-gradient-to-r from-gray-400 to-gray-600 text-white"
+                            : index === 2
+                            ? "glass-button bg-gradient-to-r from-orange-500 to-red-500 text-white"
+                            : "glass-button text-gray-300"
+                        }
+                      `}
+                    >
+                      {index + 1}
+                    </div>
+
                     <img
                       src={player.avatar}
                       alt={player.name}
-                      className="w-12 h-12 rounded-full border-2 border-gray-100 shadow-sm mr-4"
+                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover mr-3 sm:mr-4 border-3 border-white/30 shadow-lg group-hover:scale-110 transition-transform duration-300"
                     />
-                    <div className="flex-1">
-                      <h4 className="font-bold text-gray-900 text-lg">
+
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-bold text-white text-base sm:text-lg truncate group-hover:text-cyan-300 transition-colors">
                         {player.name}
                       </h4>
-                      <p className="text-xs text-gray-500">Member</p>
+                      <div className="flex items-center space-x-2 sm:space-x-4 text-xs text-blue-200 mt-1">
+                        {selectedStat.title === "Burst King" && (
+                          <span className="flex items-center glass-button px-1 sm:px-2 py-1 rounded-lg">
+                            <Zap size={10} className="text-yellow-400 mr-1" />
+                            {player.beybladeStats?.burstFinishes}
+                          </span>
+                        )}
+                        {selectedStat.title === "Spin Master" && (
+                          <span className="flex items-center glass-button px-1 sm:px-2 py-1 rounded-lg">
+                            <RotateCw
+                              size={10}
+                              className="text-cyan-400 mr-1"
+                            />
+                            {player.beybladeStats?.spinFinishes}
+                          </span>
+                        )}
+                        {selectedStat.title === "Ring-Out Pro" && (
+                          <span className="flex items-center glass-button px-1 sm:px-2 py-1 rounded-lg">
+                            <ArrowRightFromLine
+                              size={10}
+                              className="text-green-400 mr-1"
+                            />
+                            {player.beybladeStats?.overFinishes}
+                          </span>
+                        )}
+                        {selectedStat.title === "Extreme Finisher" && (
+                          <span className="flex items-center glass-button px-1 sm:px-2 py-1 rounded-lg">
+                            <Flame size={10} className="text-purple-400 mr-1" />
+                            {player.beybladeStats?.extremeFinishes}
+                          </span>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div
-                        className={`font-black text-xl ${
-                          selectedStat.color === "red"
-                            ? "text-red-600"
-                            : selectedStat.color === "blue"
-                            ? "text-blue-600"
-                            : selectedStat.color === "green"
-                            ? "text-green-600"
-                            : "text-purple-600"
-                        }`}
-                      >
-                        {/* Map the correct stat based on the title or color as fallback logic */}
+
+                    <div className="text-right ml-2 sm:ml-0">
+                      <span className="block font-black text-2xl sm:text-3xl bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent tracking-tight flex-shrink-0">
                         {selectedStat.title === "Burst King"
                           ? player.beybladeStats?.burstFinishes
-                          : selectedStat.title === "Pocket Master"
+                          : selectedStat.title === "Spin Master"
                           ? player.beybladeStats?.spinFinishes
                           : selectedStat.title === "Ring-Out Pro"
                           ? player.beybladeStats?.overFinishes
                           : player.beybladeStats?.extremeFinishes}
-                      </div>
-                      <p className="text-[10px] font-bold text-gray-400 uppercase">
+                      </span>
+                      <span className="text-xs font-bold text-blue-300 uppercase tracking-wider">
                         Finishes
-                      </p>
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="p-4 bg-gray-50 border-t border-gray-100 text-center">
-              <p className="text-xs text-gray-400 font-medium">
+            <div className="p-4 glass-card border-t border-blue-400/30 text-center">
+              <p className="text-xs text-blue-200 font-medium">
                 {selectedStat.players.length}{" "}
                 {selectedStat.players.length === 1 ? "Player" : "Players"} Tied
               </p>
@@ -525,89 +559,83 @@ const StatCard: React.FC<StatCardProps> = ({
   onClick,
 }) => {
   const colorStyles = {
-    red: "bg-red-50 text-red-600 border-red-100 from-red-500 to-rose-600",
-    blue: "bg-blue-50 text-blue-600 border-blue-100 from-blue-500 to-cyan-600",
-    green:
-      "bg-green-50 text-green-600 border-green-100 from-green-500 to-emerald-600",
-    purple:
-      "bg-purple-50 text-purple-600 border-purple-100 from-purple-500 to-fuchsia-600",
+    red: "from-red-500 to-rose-600 text-red-400",
+    blue: "from-blue-500 to-cyan-600 text-blue-400",
+    green: "from-green-500 to-emerald-600 text-green-400",
+    purple: "from-purple-500 to-fuchsia-600 text-purple-400",
   };
 
-  const bgGradient = `bg-gradient-to-br ${colorStyles[color]
-    .split(" ")
-    .slice(3)
-    .join(" ")}`;
+  const bgGradient = `bg-gradient-to-br ${colorStyles[color]}`;
 
   return (
     <div
       onClick={onClick}
-      className={`relative bg-white rounded-2xl p-6 border transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer group ${
-        colorStyles[color].split(" ")[2]
-      }`}
+      className="glass-card p-4 sm:p-6 transition-all duration-300 hover:scale-105 cursor-pointer animate-scale-in"
     >
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div
-          className={`p-3 rounded-xl transition-transform group-hover:scale-110 duration-300 ${colorStyles[
-            color
-          ]
-            .split(" ")
-            .slice(0, 2)
-            .join(" ")}`}
+          className={`p-2 sm:p-3 rounded-xl transition-transform group-hover:scale-110 duration-300 glass-button ${bgGradient}`}
         >
-          <Icon size={24} strokeWidth={2.5} />
+          <Icon size={20} className="sm:w-5 sm:h-5 text-white" />
         </div>
-        <div className="text-right">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+        <div className="text-right flex-shrink-0">
+          <p className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
             {title}
           </p>
-          <p className="text-2xl font-black text-gray-900">{value || 0}</p>
+          <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
+            {value || 0}
+          </p>
         </div>
       </div>
 
       {/* Description */}
-      <p className="text-xs text-gray-500 mb-6 font-medium">{description}</p>
+      <p className="text-xs sm:text-sm text-blue-200 mb-4 sm:mb-6 font-medium">
+        {description}
+      </p>
 
       {/* Players Info */}
       {players.length > 0 ? (
-        <div className="flex items-center pt-4 border-t border-gray-100">
-          <div className="flex -space-x-3 mr-3">
+        <div className="flex items-center pt-4 border-t border-blue-400/30">
+          <div className="flex -space-x-2 sm:-space-x-3 mr-2 sm:mr-3">
             {players.slice(0, 3).map((p, i) => (
               <img
                 key={p.id}
                 src={p.avatar}
                 alt={p.name}
-                className={`w-10 h-10 rounded-full border-2 border-white shadow-sm z-${
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white/30 shadow-lg flex-shrink-0 z-${
                   30 - i * 10
                 }`}
                 title={p.name}
               />
             ))}
             {players.length > 3 && (
-              <div className="w-10 h-10 rounded-full border-2 border-white shadow-sm bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 z-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white/30 shadow-lg glass-button flex items-center justify-center text-xs font-bold text-white z-0 flex-shrink-0">
                 +{players.length - 3}
               </div>
             )}
           </div>
 
-          <div className="ml-1 overflow-hidden">
-            <p className="text-sm font-bold text-gray-900 leading-tight truncate group-hover:text-indigo-600 transition-colors">
+          <div className="flex-1 min-w-0 ml-1 sm:ml-2">
+            <p className="text-xs sm:text-sm font-bold text-white leading-tight truncate group-hover:text-cyan-300 transition-colors">
               {players.length === 1
                 ? players[0].name
                 : `${players.length} Players`}
             </p>
-            <p className="text-[10px] text-gray-400 uppercase tracking-wide font-bold">
+            <p className="text-[10px] text-blue-300 uppercase tracking-wide font-bold">
               {players.length === 1 ? "Category Leader" : "Tied Leaders"}
             </p>
           </div>
 
           {/* Decorative dot for single player */}
           {players.length === 1 && (
-            <div className={`ml-auto w-3 h-3 rounded-full ${bgGradient}`}></div>
+            <div
+              className={`w-3 h-3 rounded-full ${bgGradient} animate-pulse flex-shrink-0`}
+            ></div>
           )}
         </div>
       ) : (
-        <div className="pt-4 border-t border-gray-100 text-sm text-gray-400">
+        <div className="pt-4 border-t border-blue-400/30 text-sm text-blue-300">
           No data available
         </div>
       )}
