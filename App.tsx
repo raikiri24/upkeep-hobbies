@@ -5,6 +5,7 @@ import { Tournaments } from './components/Tournaments';
 import { Home } from './components/Home';
 import { Players } from './components/Players';
 import PBBLTeamUpdates from './components/PBBLTeamUpdates'; // Import the new component
+import SpecialtyAwards from './components/SpecialtyAwards'; // Import the new component
 import { User } from './types';
 
 const App: React.FC = () => {
@@ -31,6 +32,8 @@ const App: React.FC = () => {
         return <Players />;
       case 'pbblTeamUpdates': // New case for PBBL Team Updates
         return <PBBLTeamUpdates />; 
+      case 'specialtyAwards': // New case for Specialty Awards
+        return <SpecialtyAwards />; 
       default:
         return <Home />;
     }

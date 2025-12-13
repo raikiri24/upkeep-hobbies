@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { User } from "../types";
+import { LoadingScreen } from "./LoadingScreen";
 import {
   Trophy,
   Medal,
@@ -15,7 +16,6 @@ import {
   Twitter,
   Instagram,
   Youtube,
-  Tv,
   ExternalLink,
 } from "lucide-react";
 
@@ -41,11 +41,7 @@ export const Home: React.FC = () => {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64 text-gray-400">
-        Loading community stats...
-      </div>
-    );
+    return <LoadingScreen message="Loading community stats..." size="large" />;
   }
 
   const getTopStatPlayers = (stat: keyof User["beybladeStats"]) => {
@@ -54,8 +50,7 @@ export const Home: React.FC = () => {
       .sort(
         (a, b) =>
           (b.beybladeStats?.[stat] || 0) - (a.beybladeStats?.[stat] || 0)
-      )
-      .slice(0, 5);
+      );
   };
 
   const topSpin = getTopStatPlayers("spinFinishes");
@@ -281,121 +276,44 @@ export const Home: React.FC = () => {
         </div>
       </div>
 
-      {/* Community & Socials Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pt-6 lg:pt-8 border-t border-blue-400/30 animate-fade-in">
-        {/* Live Stream / Video */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-3xl font-bold text-white flex items-center">
-              <Tv className="mr-3 text-red-400" />
-              Live on Facebook
-            </h3>
-            <a
-              href="https://www.facebook.com/profile.php?id=100083603391159"
-              target="_blank"
-              rel="noreferrer"
-              className="glass-button px-4 py-2 text-sm font-semibold text-cyan-300 hover:text-white flex items-center"
-            >
-              Visit Page <ExternalLink size={14} className="ml-1" />
-            </a>
-          </div>
-
-          {/* Video Container */}
-          <div className="glass-card rounded-2xl overflow-hidden shadow-2xl aspect-video relative group">
-            {/* Placeholder Content - Replace iframe src with your actual Facebook Embed URL */}
-            <iframe
-              src="https://www.facebook.com/plugins/video.php?height=476&href=https%3A%2F%2Fwww.facebook.com%2FUpkeepHobbiesOfficial%2Fvideos%2F1474924136931167%2F&show_text=false&width=267&t=0"
-              width="100%"
-              height="100%"
-              style={{ border: "none", overflow: "hidden" }}
-              scrolling="no"
-              frameBorder="0"
-              allowFullScreen={true}
-              allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-              title="Facebook Live"
-              className="w-full h-full"
-            ></iframe>
-
-            {/* Overlay hint for the developer/owner */}
-            <div className="absolute inset-0 bg-black/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-              <p className="text-white font-medium glass-button px-4 py-2 rounded-lg">
-                Update iframe src in code with your Video URL
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Social Media Links */}
-        <div className="space-y-6">
-          <h3 className="text-3xl font-bold text-white">Follow Us</h3>
-          <div className="grid grid-cols-1 gap-4">
-            {/* Facebook - Active */}
-            <a
-              href="https://www.facebook.com/profile.php?id=100083603391159"
-              target="_blank"
-              rel="noreferrer"
-              className="glass-card p-4 hover:scale-105 transition-all duration-300 group"
-            >
-              <div className="flex items-center">
-                <div className="p-3 glass-button bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full group-hover:scale-110 transition-transform flex items-center justify-center">
-                  <Facebook size={24} className="flex-shrink-0" />
-                </div>
-                <div className="ml-4 flex-1">
-                  <h4 className="font-bold text-white">Facebook</h4>
-                  <p className="text-xs text-blue-200">Join our community</p>
-                </div>
-                <ExternalLink
-                  size={16}
-                  className="text-blue-300 group-hover:text-cyan-400 transition-colors flex-shrink-0"
-                />
-              </div>
-            </a>
-
-            {/* Instagram - In Progress */}
-            <div className="glass-card p-4 opacity-60 cursor-not-allowed">
-              <div className="flex items-center">
-                <div className="p-3 glass-button bg-gray-500 text-gray-300 rounded-full flex items-center justify-center">
-                  <Instagram size={24} className="flex-shrink-0" />
-                </div>
-                <div className="ml-4 flex-1">
-                  <h4 className="font-bold text-blue-300">Instagram</h4>
-                  <span className="inline-block px-2 py-0.5 glass-button text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">
-                    Creating Page
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Twitter/X - In Progress */}
-            <div className="glass-card p-4 opacity-60 cursor-not-allowed">
-              <div className="flex items-center">
-                <div className="p-3 glass-button bg-gray-500 text-gray-300 rounded-full flex items-center justify-center">
-                  <Twitter size={24} className="flex-shrink-0" />
-                </div>
-                <div className="ml-4 flex-1">
-                  <h4 className="font-bold text-blue-300">Twitter</h4>
-                  <span className="inline-block px-2 py-0.5 glass-button text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">
-                    Creating Page
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* YouTube - In Progress */}
-            <div className="glass-card p-4 opacity-60 cursor-not-allowed">
-              <div className="flex items-center">
-                <div className="p-3 glass-button bg-gray-500 text-gray-300 rounded-full flex items-center justify-center">
-                  <Youtube size={24} className="flex-shrink-0" />
-                </div>
-                <div className="ml-4 flex-1">
-                  <h4 className="font-bold text-blue-300">YouTube</h4>
-                  <span className="inline-block px-2 py-0.5 glass-button text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">
-                    Creating Page
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Shop Section */}
+      <div className="animate-fade-in">
+        <h3 className="text-3xl font-bold text-white mb-8 flex items-center">
+          <ExternalLink className="mr-3 text-cyan-400" />
+          Shop Pages
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <ShopCard
+            title="Facebook Shop"
+            description="Browse our collection on Facebook"
+            icon={Facebook}
+            color="blue"
+            url="https://www.facebook.com/profile.php?id=100083603391159"
+          />
+          <ShopCard
+            title="Instagram"
+            description="Coming soon - Follow us for updates"
+            icon={Instagram}
+            color="purple"
+            url="#"
+            disabled
+          />
+          <ShopCard
+            title="Twitter/X"
+            description="Coming soon - Latest news and drops"
+            icon={Twitter}
+            color="cyan"
+            url="#"
+            disabled
+          />
+          <ShopCard
+            title="YouTube"
+            description="Coming soon - Product reviews and tutorials"
+            icon={Youtube}
+            color="red"
+            url="#"
+            disabled
+          />
         </div>
       </div>
 
@@ -640,5 +558,91 @@ const StatCard: React.FC<StatCardProps> = ({
         </div>
       )}
     </div>
+  );
+};
+
+interface ShopCardProps {
+  title: string;
+  description: string;
+  icon: any;
+  color: string;
+  url: string;
+  disabled?: boolean;
+}
+
+const ShopCard: React.FC<ShopCardProps> = ({
+  title,
+  description,
+  icon: Icon,
+  color,
+  url,
+  disabled = false,
+}) => {
+  const colorStyles = {
+    blue: "from-blue-500 to-blue-600 text-blue-400",
+    purple: "from-purple-500 to-purple-600 text-purple-400",
+    cyan: "from-cyan-500 to-cyan-600 text-cyan-400",
+    red: "from-red-500 to-red-600 text-red-400",
+  };
+
+  const bgGradient = `bg-gradient-to-br ${colorStyles[color as keyof typeof colorStyles]}`;
+
+  if (disabled) {
+    return (
+      <div className="glass-card p-4 sm:p-6 opacity-60 cursor-not-allowed">
+        <div className="flex justify-between items-start mb-4">
+          <div
+            className={`p-2 sm:p-3 rounded-xl glass-button bg-gray-500 text-gray-300`}
+          >
+            <Icon size={20} className="sm:w-5 sm:h-5" />
+          </div>
+          <div className="text-right flex-shrink-0">
+            <p className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+              {title}
+            </p>
+            <span className="inline-block px-2 py-0.5 glass-button text-blue-400 text-[10px] font-bold rounded uppercase tracking-wider">
+              Coming Soon
+            </span>
+          </div>
+        </div>
+
+        <p className="text-xs sm:text-sm text-blue-200 mb-4 sm:mb-6 font-medium">
+          {description}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="glass-card p-4 sm:p-6 transition-all duration-300 hover:scale-105 cursor-pointer animate-scale-in block"
+    >
+      <div className="flex justify-between items-start mb-4">
+        <div
+          className={`p-2 sm:p-3 rounded-xl transition-transform group-hover:scale-110 duration-300 glass-button ${bgGradient}`}
+        >
+          <Icon size={20} className="sm:w-5 sm:h-5 text-white" />
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+            {title}
+          </p>
+          <ExternalLink size={14} className="text-cyan-300 ml-1" />
+        </div>
+      </div>
+
+      <p className="text-xs sm:text-sm text-blue-200 mb-4 sm:mb-6 font-medium">
+        {description}
+      </p>
+
+      <div className="flex items-center pt-4 border-t border-blue-400/30">
+        <span className="text-xs font-bold text-cyan-300 uppercase tracking-wide">
+          Visit Shop
+        </span>
+      </div>
+    </a>
   );
 };

@@ -1,8 +1,12 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { api } from '../services/api';
 import { User } from '../types';
 import { Mail, Trophy, Search, ArrowUpDown, X, Users, BarChart3 } from 'lucide-react';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { LoadingScreen } from './LoadingScreen';
+
+// Lazy load the charts for better performance
+const LazyRadarChart = lazy(() => import('./charts/RadarChart').then(module => ({ default: module.LazyRadarChart })));
+const LazyBarChart = lazy(() => import('./charts/BarChart').then(module => ({ default: module.LazyBarChart })));
 
 type SortField = 'name' | 'email' | 'totalFinishes' | 'spinFinishes' | 'overFinishes' | 'burstFinishes' | 'extremeFinishes';
 type SortDirection = 'asc' | 'desc';
@@ -26,16 +30,19 @@ export const Players: React.FC = () => {
     fetchPlayers();
   }, []);
 
-  const totalFinishes = (player: User) => {
+  const totalFinishes = useCallback((player: User) => {
     if (!player.beybladeStats) return 0;
     return player.beybladeStats.spinFinishes + player.beybladeStats.overFinishes + 
            player.beybladeStats.burstFinishes + player.beybladeStats.extremeFinishes;
-  };
+  }, []);
 
   const filteredPlayers = useMemo(() => {
+    // Early return if no players
+    if (!players.length) return [];
+    
     let filtered = players;
     
-    // Apply search filter
+    // Apply search filter - optimized with early return
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = players.filter(player => 
@@ -44,44 +51,32 @@ export const Players: React.FC = () => {
       );
     }
     
-    // Apply sorting
-    return filtered.sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-      
-      switch (sortField) {
+    // Pre-compute values for sorting
+    const getValue = (player: User, field: SortField) => {
+      switch (field) {
         case 'name':
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
-          break;
+          return player.name.toLowerCase();
         case 'email':
-          aValue = a.email.toLowerCase();
-          bValue = b.email.toLowerCase();
-          break;
+          return player.email.toLowerCase();
         case 'totalFinishes':
-          aValue = totalFinishes(a);
-          bValue = totalFinishes(b);
-          break;
+          return totalFinishes(player);
         case 'spinFinishes':
-          aValue = a.beybladeStats?.spinFinishes || 0;
-          bValue = b.beybladeStats?.spinFinishes || 0;
-          break;
+          return player.beybladeStats?.spinFinishes || 0;
         case 'overFinishes':
-          aValue = a.beybladeStats?.overFinishes || 0;
-          bValue = b.beybladeStats?.overFinishes || 0;
-          break;
+          return player.beybladeStats?.overFinishes || 0;
         case 'burstFinishes':
-          aValue = a.beybladeStats?.burstFinishes || 0;
-          bValue = b.beybladeStats?.burstFinishes || 0;
-          break;
+          return player.beybladeStats?.burstFinishes || 0;
         case 'extremeFinishes':
-          aValue = a.beybladeStats?.extremeFinishes || 0;
-          bValue = b.beybladeStats?.extremeFinishes || 0;
-          break;
+          return player.beybladeStats?.extremeFinishes || 0;
         default:
-          aValue = a.name.toLowerCase();
-          bValue = b.name.toLowerCase();
+          return player.name.toLowerCase();
       }
+    };
+    
+    // Apply sorting with optimized comparison
+    return filtered.sort((a, b) => {
+      const aValue = getValue(a, sortField);
+      const bValue = getValue(b, sortField);
       
       if (sortDirection === 'asc') {
         return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
@@ -89,44 +84,45 @@ export const Players: React.FC = () => {
         return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
       }
     });
-  }, [players, searchQuery, sortField, sortDirection]);
+  }, [players, searchQuery, sortField, sortDirection, totalFinishes]);
 
-  const handleSort = (field: SortField) => {
+  const handleSort = useCallback((field: SortField) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
     } else {
       setSortField(field);
       setSortDirection('asc');
     }
-  };
+  }, [sortField]);
 
-  const getRadarData = (player: User) => {
+  const getRadarData = useCallback((player: User) => {
     if (!player.beybladeStats) return [];
     
+    const { spinFinishes, burstFinishes, overFinishes, extremeFinishes } = player.beybladeStats;
     return [
-      { stat: 'Spin', value: player.beybladeStats.spinFinishes },
-      { stat: 'Burst', value: player.beybladeStats.burstFinishes },
-      { stat: 'Over', value: player.beybladeStats.overFinishes },
-      { stat: 'Extreme', value: player.beybladeStats.extremeFinishes },
+      { stat: 'Spin', value: spinFinishes },
+      { stat: 'Burst', value: burstFinishes },
+      { stat: 'Over', value: overFinishes },
+      { stat: 'Extreme', value: extremeFinishes },
     ];
-  };
+  }, []);
 
-  const getBestCategories = (player: User) => {
-    if (!player.beybladeStats) return [];
+  const getBestCategories = useCallback((player: User) => {
+    if (!player.beybladeStats) return '';
     
-    const stats = player.beybladeStats;
-    const max = Math.max(stats.spinFinishes, stats.burstFinishes, stats.overFinishes, stats.extremeFinishes);
+    const { spinFinishes, burstFinishes, overFinishes, extremeFinishes } = player.beybladeStats;
+    const max = Math.max(spinFinishes, burstFinishes, overFinishes, extremeFinishes);
     const bestCategories = [];
     
-    if (stats.spinFinishes === max) bestCategories.push('🌀 Spin');
-    if (stats.burstFinishes === max) bestCategories.push('💥 Burst');
-    if (stats.overFinishes === max) bestCategories.push('⚡ Over');
-    if (stats.extremeFinishes === max) bestCategories.push('🔥 Extreme');
+    if (spinFinishes === max) bestCategories.push('🌀 Spin');
+    if (burstFinishes === max) bestCategories.push('💥 Burst');
+    if (overFinishes === max) bestCategories.push('⚡ Over');
+    if (extremeFinishes === max) bestCategories.push('🔥 Extreme');
     
     return bestCategories.join(' • ');
-  };
+  }, []);
 
-  const addToCompare = (player: User) => {
+  const addToCompare = useCallback((player: User) => {
     if (!compareMode) return;
     
     setComparePlayers(prev => {
@@ -141,28 +137,32 @@ export const Players: React.FC = () => {
       }
       return prev;
     });
-  };
+  }, [compareMode]);
 
-  const removeFromCompare = (index: number) => {
+  const removeFromCompare = useCallback((index: number) => {
     setComparePlayers(prev => {
       const newPlayers = [...prev] as [User | null, User | null];
       newPlayers[index] = null;
       return newPlayers;
     });
-  };
+  }, []);
 
-  const getComparisonData = () => {
+  const getComparisonData = useMemo(() => {
     if (!comparePlayers[0] || !comparePlayers[1]) return [];
     
+    const [player1, player2] = comparePlayers;
+    const p1Stats = player1.beybladeStats || {};
+    const p2Stats = player2.beybladeStats || {};
+    
     return [
-      { stat: 'Spin', [comparePlayers[0].name]: comparePlayers[0].beybladeStats?.spinFinishes || 0, [comparePlayers[1].name]: comparePlayers[1].beybladeStats?.spinFinishes || 0 },
-      { stat: 'Burst', [comparePlayers[0].name]: comparePlayers[0].beybladeStats?.burstFinishes || 0, [comparePlayers[1].name]: comparePlayers[1].beybladeStats?.burstFinishes || 0 },
-      { stat: 'Over', [comparePlayers[0].name]: comparePlayers[0].beybladeStats?.overFinishes || 0, [comparePlayers[1].name]: comparePlayers[1].beybladeStats?.overFinishes || 0 },
-      { stat: 'Extreme', [comparePlayers[0].name]: comparePlayers[0].beybladeStats?.extremeFinishes || 0, [comparePlayers[1].name]: comparePlayers[1].beybladeStats?.extremeFinishes || 0 },
+      { stat: 'Spin', [player1.name]: p1Stats.spinFinishes || 0, [player2.name]: p2Stats.spinFinishes || 0 },
+      { stat: 'Burst', [player1.name]: p1Stats.burstFinishes || 0, [player2.name]: p2Stats.burstFinishes || 0 },
+      { stat: 'Over', [player1.name]: p1Stats.overFinishes || 0, [player2.name]: p2Stats.overFinishes || 0 },
+      { stat: 'Extreme', [player1.name]: p1Stats.extremeFinishes || 0, [player2.name]: p2Stats.extremeFinishes || 0 },
     ];
-  };
+  }, [comparePlayers]);
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading players...</div>;
+  if (loading) return <LoadingScreen message="Loading players..." size="large" />;
 
   return (
     <div className="space-y-8">
@@ -193,7 +193,7 @@ export const Players: React.FC = () => {
             
             <button
               onClick={() => {
-                setCompareMode(!compareMode);
+                setCompareMode(prev => !prev);
                 setComparePlayers([null, null]);
               }}
               className={`
@@ -244,7 +244,9 @@ export const Players: React.FC = () => {
               <ArrowUpDown size={14} className={sortField === field && sortDirection === 'desc' ? 'rotate-180' : ''} />
             </button>
           ))}
-        </div>
+      </div>
+      
+
       </div>
 
       {/* Compare Mode Selection */}
@@ -317,32 +319,25 @@ export const Players: React.FC = () => {
                 {/* Bar Chart Comparison */}
                 <div className="glass-card p-4">
                   <h5 className="text-sm font-medium text-gray-300 mb-3 text-center">Finish Types Comparison</h5>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <BarChart data={getComparisonData()}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                      <XAxis dataKey="stat" tick={{ fill: '#e5e7eb' }} />
-                      <YAxis tick={{ fill: '#e5e7eb' }} />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: '1px solid rgba(255,255,255,0.2)' }}
-                        labelStyle={{ color: '#e5e7eb' }}
-                      />
-                      <Legend />
-                      <Bar dataKey={comparePlayers[0].name} fill="#3b82f6" />
-                      <Bar dataKey={comparePlayers[1].name} fill="#10b981" />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <Suspense fallback={<div className="h-48 flex items-center justify-center text-gray-400">Loading chart...</div>}>
+                    <LazyBarChart 
+                      data={getComparisonData} 
+                      player1Name={comparePlayers[0]!.name}
+                      player2Name={comparePlayers[1]!.name}
+                    />
+                  </Suspense>
                 </div>
                 
                 {/* Stats Summary */}
                 <div className="space-y-3">
                   <h5 className="text-sm font-medium text-gray-300 mb-3">Head to Head Stats</h5>
-                  {[
+                  {useMemo(() => [
                     { label: 'Total Finishes', getValue: (p: User) => totalFinishes(p) },
                     { label: 'Spin Finishes', getValue: (p: User) => p.beybladeStats?.spinFinishes || 0 },
                     { label: 'Burst Finishes', getValue: (p: User) => p.beybladeStats?.burstFinishes || 0 },
                     { label: 'Over Finishes', getValue: (p: User) => p.beybladeStats?.overFinishes || 0 },
                     { label: 'Extreme Finishes', getValue: (p: User) => p.beybladeStats?.extremeFinishes || 0 },
-                  ].map(({ label, getValue }) => {
+                  ], [totalFinishes]).map(({ label, getValue }) => {
                     const p1Value = getValue(comparePlayers[0]!);
                     const p2Value = getValue(comparePlayers[1]!);
                     const p1Wins = p1Value > p2Value;
@@ -499,31 +494,12 @@ export const Players: React.FC = () => {
                   <div>
                     <h4 className="text-2xl font-bold text-white mb-4 sm:mb-6 text-center">Beyblade Statistics</h4>
                     <div className="glass-card p-4 sm:p-6 h-80 sm:h-96">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <RadarChart data={getRadarData(selectedPlayer)}>
-                          <PolarGrid stroke="rgba(255, 255, 255, 0.2)" />
-                          <PolarAngleAxis dataKey="stat" tick={{ fill: '#e5e7eb' }} />
-                          <PolarRadiusAxis 
-                            angle={90} 
-                            domain={[0, 'dataMax']} 
-                            tick={{ fill: '#9ca3af' }}
-                          />
-                          <Radar 
-                            name={selectedPlayer.name} 
-                            dataKey="value" 
-                            stroke="url(#colorGradient)" 
-                            fill="url(#colorGradient)" 
-                            fillOpacity={0.6}
-                          />
-                          <defs>
-                            <linearGradient id="colorGradient" x1="0" y1="0" x2="1" y2="1">
-                              <stop offset="0%" stopColor="#3b82f6" />
-                              <stop offset="50%" stopColor="#8b5cf6" />
-                              <stop offset="100%" stopColor="#ec4899" />
-                            </linearGradient>
-                          </defs>
-                        </RadarChart>
-                      </ResponsiveContainer>
+                      <Suspense fallback={<div className="h-full flex items-center justify-center text-gray-400">Loading chart...</div>}>
+                        <LazyRadarChart 
+                          data={getRadarData(selectedPlayer)} 
+                          playerName={selectedPlayer.name} 
+                        />
+                      </Suspense>
                     </div>
                   </div>
                   

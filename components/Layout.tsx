@@ -1,6 +1,6 @@
 import React from "react";
 import { User } from "../types";
-import { ShoppingBag, Trophy, Menu, Home, ShieldHalf, Users, User as UserIcon } from "lucide-react";
+import { ShoppingBag, Trophy, Menu, Home, ShieldHalf, Users, User as UserIcon, Award } from "lucide-react";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -24,6 +24,7 @@ export const Layout: React.FC<LayoutProps> = ({
     { id: "players", label: "Players", icon: Users, description: "View all players" },
     { id: "tournaments", label: "Tournaments", icon: Trophy, description: "Upcoming & past" },
     { id: "shop", label: "Shop", icon: ShoppingBag, description: "Browse products" },
+    { id: "specialtyAwards", label: "Specialty Awards", icon: Award, description: "Player stats & awards" },
     { id: "pbblTeamUpdates", label: "PBBL Updates", icon: ShieldHalf, description: "Team news" },
   ];
 
@@ -116,7 +117,7 @@ export const Layout: React.FC<LayoutProps> = ({
         {/* Footer */}
         <div className="p-3 sm:p-4 border-t border-white/10">
           <div className="text-center text-xs text-gray-400">
-            <p>© 2024 Upkeep Hobbies</p>
+            <p>© 2026 Upkeep Hobbies</p>
             <p className="mt-1">Version 1.0.0</p>
           </div>
         </div>
