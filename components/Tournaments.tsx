@@ -26,6 +26,7 @@ export const Tournaments: React.FC<TournamentsProps> = ({ user }) => {
       api.getTournaments(),
       api.getAllUsers()
     ]);
+    setTournaments(tData);
     setUsers(uData);
     setLoading(false);
   };
