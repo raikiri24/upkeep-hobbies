@@ -137,7 +137,7 @@ class ApiService {
 
   // --- PRODUCTS ---
   async getProducts(): Promise<Product[]> {
-    const products = await this.fetch<any>("/products");
+    const products = await this.fetch<any>("/getItems");
     return this.normalizeResponse(products);
   }
 

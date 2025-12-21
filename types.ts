@@ -19,10 +19,13 @@ export interface User {
 export interface Product {
   id: string;
   name: string;
+  sku: string;
   category: string;
   price: number;
   stock: number;
-  image: string;
+  description: string;
+  status: string;
+  imageUrl: string;
 }
 
 export interface TournamentStanding {
