@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { Layout } from './components/Layout';
 import { Shop } from './components/Shop';
 import { Tournaments } from './components/Tournaments';
@@ -8,7 +9,7 @@ import PBBLTeamUpdates from './components/PBBLTeamUpdates'; // Import the new co
 import SpecialtyAwards from './components/SpecialtyAwards'; // Import the new component
 import { User } from './types';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   // Open Source Mode: Default to a Guest/Viewer User
   const [currentUser] = useState<User>({
     id: 'guest',
@@ -16,38 +17,61 @@ const App: React.FC = () => {
     email: 'guest@upkeep.com',
     avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest'
   });
-  
-  const [currentView, setCurrentView] = useState('home');
 
-  // Routing Logic
-  const renderContent = () => {
-    switch (currentView) {
-      case 'home':
-        return <Home />;
-      case 'shop':
-        return <Shop user={currentUser} />;
-      case 'tournaments':
-        return <Tournaments user={currentUser} />;
-      case 'players':
-        return <Players />;
-      case 'pbblTeamUpdates': // New case for PBBL Team Updates
-        return <PBBLTeamUpdates />; 
-      case 'specialtyAwards': // New case for Specialty Awards
-        return <SpecialtyAwards />; 
-      default:
-        return <Home />;
-    }
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Map URL paths to view names
+  const getCurrentView = () => {
+    const path = location.pathname;
+    if (path === '/' || path === '/home') return 'home';
+    if (path === '/shop') return 'shop';
+    if (path === '/tournaments') return 'tournaments';
+    if (path === '/players') return 'players';
+    if (path === '/pbbl-team-updates') return 'pbblTeamUpdates';
+    if (path === '/specialty-awards') return 'specialtyAwards';
+    return 'home';
   };
+
+  const handleNavigate = (view: string) => {
+    const pathMap: { [key: string]: string } = {
+      home: '/home',
+      shop: '/shop',
+      tournaments: '/tournaments',
+      players: '/players',
+      pbblTeamUpdates: '/pbbl-team-updates',
+      specialtyAwards: '/specialty-awards'
+    };
+    navigate(pathMap[view] || '/');
+  };
+
+  const currentView = getCurrentView();
 
   return (
     <Layout 
       user={currentUser} 
       currentView={currentView} 
-      onNavigate={setCurrentView} 
+      onNavigate={handleNavigate} 
       onLogout={() => {}}
     >
-      {renderContent()}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/shop" element={<Shop user={currentUser} />} />
+        <Route path="/tournaments" element={<Tournaments user={currentUser} />} />
+        <Route path="/players" element={<Players />} />
+        <Route path="/pbbl-team-updates" element={<PBBLTeamUpdates />} />
+        <Route path="/specialty-awards" element={<SpecialtyAwards />} />
+      </Routes>
     </Layout>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 };
 
