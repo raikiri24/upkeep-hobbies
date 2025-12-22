@@ -134,8 +134,20 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,255,255,0.05)_50%,transparent_100%)]"></div>
                     <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,rgba(0,255,255,0.05)_50%,transparent_52%)] bg-[size:20px_20px]"></div>
                     
-                    {/* Product Icon */}
-                    <Package className="text-cyan-400/60 group-hover:text-cyan-400 transition-colors duration-300 relative z-10" size={40} />
+                    {/* Product Image */}
+                    {product.imageUrl ? (
+                      <img 
+                        src={product.imageUrl} 
+                        alt={product.name}
+                        className="w-full h-full object-cover relative z-10"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <Package className="text-cyan-400/60 group-hover:text-cyan-400 transition-colors duration-300 relative z-10" size={40} />
+                    )}
                     
                     {/* Category Label */}
                     <div className="absolute bottom-2 left-2">
