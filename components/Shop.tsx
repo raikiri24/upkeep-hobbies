@@ -58,7 +58,7 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
   }
   const handleOrderClick = (productName: string, sku: string) => {
     const message = `Hi! I'm interested in ordering: ${productName} (SKU: ${sku})`;
-    const facebookUrl = `https://www.facebook.com/messages/?text=${encodeURIComponent(message)}`;
+    const facebookUrl = `https://www.facebook.com/messages/t/100083603391159/?text=${encodeURIComponent(message)}`;
     window.open(facebookUrl, '_blank');
   };
 
