@@ -90,7 +90,7 @@ export const Layout: React.FC<LayoutProps> = ({
           <div className="flex flex-col items-center space-y-3 sm:space-y-4">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl glass-button flex items-center justify-center animate-float">
               <img
-                src="./logo.png"
+                src="/logo.png"
                 alt="Upkeep Hobbies"
                 className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl"
               />
@@ -205,7 +205,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </header>
 
         {/* Content Area */}
-        <div className=" max-w-full animate-fade-in ">{children}</div>
+        <div className={`${currentView === 'shop' ? '' : 'px-2 sm:px-4 md:px-6 lg:px-8'} max-w-full animate-fade-in `}>{children}</div>
       </main>
     </div>
   );

@@ -68,7 +68,7 @@ export const Home: React.FC = () => {
   return (
     <div className="space-y-12 pb-12 relative">
       {/* Header Section */}
-      <div className="text-center space-y-3 sm:space-y-4 animate-fade-in px-4">
+      <div className="text-center space-y-3 sm:space-y-4 animate-fade-in">
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
           Upkeep Hobbies
         </h1>
