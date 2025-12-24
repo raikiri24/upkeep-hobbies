@@ -1,6 +1,9 @@
-import { UnmatchedDeck } from "../types";
+import { UnmatchedDeck, UnmatchedCard, UnmatchedHero, UnmatchedSidekick } from "../types";
 
-const UNMATCHED_API_URL = "/api/unmatched/api/db/decks";
+// Use different API URLs for development vs production
+const UNMATCHED_API_URL = (import.meta as any).env?.MODE === 'production' 
+  ? "https://unmatched.cards/api/db/decks"  // Production - direct API call
+  : "/api/unmatched/api/db/decks";              // Development - use Vite proxy
 
 class UnmatchedService {
   private async fetch<T>(url: string): Promise<T> {
