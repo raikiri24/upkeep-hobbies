@@ -1,17 +1,7 @@
 import { UnmatchedDeck, UnmatchedCard, UnmatchedHero, UnmatchedSidekick } from "../types";
 
-// Use different API URLs for development vs production
-// Add development override for flexible deployment
-const UNMATCHED_API_URL = (((import.meta as any).env?.MODE === 'production') && 
-  !((import.meta as any).env?.FORCE_DEV === 'true')) 
-  ? "https://unmatched.cards/api/db/decks"  // Production - direct API call
-  : "/api/unmatched/api/db/decks";              // Development - use Vite proxy
-
-// Alternative: Force development API even in production
-const FORCE_DEV_API_URL = "/api/unmatched/api/db/decks";
-
-// Alternative: Force development API even in production
-// const UNMATCHED_API_URL = "/api/unmatched/api/db/decks";  // Always use dev API
+// Use proxy path to avoid CORS issues in both development and production
+const UNMATCHED_API_URL = "/api/unmatched/api/db/decks";
 
 class UnmatchedService {
   private async fetch<T>(url: string): Promise<T> {
