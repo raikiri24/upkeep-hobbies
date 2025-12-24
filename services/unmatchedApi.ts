@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { UnmatchedDeck, UnmatchedCard, UnmatchedHero, UnmatchedSidekick } from "../types";
 
 // Use proxy path to avoid CORS issues in both development and production
@@ -5,11 +6,18 @@ const UNMATCHED_API_URL = "/api/unmatched/api/db/decks";
 
 class UnmatchedService {
   private async fetch<T>(url: string): Promise<T> {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch from Unmatched API: ${response.statusText}`);
+    try {
+      const response = await axios.get<T>(url);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error(`Failed to fetch from Unmatched API: ${error.response.status} ${error.response.statusText}`);
+      } else if (error.request) {
+        throw new Error(`Failed to fetch from Unmatched API: Network error`);
+      } else {
+        throw new Error(`Failed to fetch from Unmatched API: ${error.message}`);
+      }
     }
-    return response.json();
   }
 
   async getDecks(): Promise<UnmatchedDeck[]> {
