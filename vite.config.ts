@@ -12,8 +12,8 @@ export default defineConfig(({ mode }) => {
           '/api/unmatched': {
             target: 'https://unmatched.cards',
             changeOrigin: true,
+            secure: true,
             rewrite: (path) => path.replace(/^\/api\/unmatched/, ''),
-            secure: true
           }
         }
       },

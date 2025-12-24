@@ -44,6 +44,11 @@ class UnmatchedService {
       }));
     } catch (error) {
       console.error('Error fetching Unmatched decks:', error);
+      // In production, provide better error handling for CORS issues
+      if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+        console.error('CORS error detected. Please check server configuration.');
+        return [];
+      }
       throw error;
     }
   }
