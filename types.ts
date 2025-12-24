@@ -68,3 +68,57 @@ export interface PlayerStats {
   winRate: number;
   tournamentsJoined: number;
 }
+
+export interface UnmatchedCard {
+  title: string;
+  slug: string;
+  type: "attack" | "defense" | "versatile" | "scheme";
+  value?: number;
+  boost?: number;
+  basicText?: string;
+  duringText?: string;
+  afterText?: string;
+  immediateText?: string;
+  image: string;
+  quantity: number;
+  characterName?: string;
+  card_notes?: string;
+  other_decks?: Array<{ name: string; slug: string }>;
+}
+
+export interface UnmatchedHero {
+  name: string;
+  slug: string;
+  hp: number;
+  attack_type: "melee" | "ranged";
+  quantity: number;
+}
+
+export interface UnmatchedSidekick {
+  name: string;
+  slug: string;
+  hp: number;
+  attack_type: "melee" | "ranged";
+  quantity: number;
+}
+
+export interface UnmatchedDeck {
+  id: string;
+  name: string;
+  slug: string;
+  hero?: string;
+  side?: string;
+  release?: string;
+  set?: string;
+  setSlug?: string;
+  type?: string;
+  health?: number;
+  cardCount?: number;
+  special?: string;
+  movement?: number;
+  quote?: string;
+  notes?: string;
+  heroes?: UnmatchedHero[];
+  sidekicks?: UnmatchedSidekick[];
+  cards?: UnmatchedCard[];
+}

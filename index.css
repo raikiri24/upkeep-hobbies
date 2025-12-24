@@ -206,6 +206,43 @@ body {
     grid-template-columns: 1fr !important;
     gap: 1rem !important;
   }
+  
+  /* Fix mobile sidebar and content heights */
+  @media (max-width: 768px) {
+    .glass-sidebar {
+      height: 100vh;
+      max-height: 100vh;
+    }
+    
+    .glass-card {
+      min-height: fit-content;
+    }
+    
+    /* Ensure proper mobile viewport */
+    body {
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    /* Mobile main content adjustments */
+    main {
+      height: calc(100vh - 60px); /* Account for mobile header */
+      max-height: calc(100vh - 60px);
+      overflow-x: hidden; /* Prevent horizontal scrollbar */
+      overflow-y: auto; /* Only allow vertical scrolling */
+    }
+  }
+  
+  /* Remove right side scrollbar globally */
+  main {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Ensure no horizontal overflow */
+  body {
+    overflow-x: hidden !important;
+  }
 }
 
 /* Accessibility improvements */

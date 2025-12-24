@@ -7,6 +7,7 @@ import { Home } from './components/Home';
 import { Players } from './components/Players';
 import PBBLTeamUpdates from './components/PBBLTeamUpdates'; // Import the new component
 import SpecialtyAwards from './components/SpecialtyAwards'; // Import the new component
+import UnmatchedDecks from './components/UnmatchedDecks'; // Import the new component
 import { User } from './types';
 
 const AppContent: React.FC = () => {
@@ -30,6 +31,7 @@ const AppContent: React.FC = () => {
     if (path === '/players') return 'players';
     if (path === '/pbbl-team-updates') return 'pbblTeamUpdates';
     if (path === '/specialty-awards') return 'specialtyAwards';
+    if (path === '/unmatched-decks') return 'unmatchedDecks';
     return 'home';
   };
 
@@ -40,7 +42,8 @@ const AppContent: React.FC = () => {
       tournaments: '/tournaments',
       players: '/players',
       pbblTeamUpdates: '/pbbl-team-updates',
-      specialtyAwards: '/specialty-awards'
+      specialtyAwards: '/specialty-awards',
+      unmatchedDecks: '/unmatched-decks'
     };
     navigate(pathMap[view] || '/');
   };
@@ -62,6 +65,7 @@ const AppContent: React.FC = () => {
         <Route path="/players" element={<Players />} />
         <Route path="/pbbl-team-updates" element={<PBBLTeamUpdates />} />
         <Route path="/specialty-awards" element={<SpecialtyAwards />} />
+        <Route path="/unmatched-decks" element={<UnmatchedDecks />} />
       </Routes>
     </Layout>
   );

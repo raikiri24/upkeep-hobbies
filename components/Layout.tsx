@@ -9,6 +9,7 @@ import {
   Users,
   User as UserIcon,
   Award,
+  Layers,
 } from "lucide-react";
 
 interface LayoutProps {
@@ -65,10 +66,16 @@ export const Layout: React.FC<LayoutProps> = ({
       icon: ShieldHalf,
       description: "Team news",
     },
+    {
+      id: "unmatchedDecks",
+      label: "Unmatched Decks",
+      icon: Layers,
+      description: "Browse all decks",
+    },
   ];
 
   return (
-    <div className="min-h-screen flex font-sans text-white">
+    <div className="min-h-screen flex font-sans text-white overflow-hidden">
       {/* Mobile Sidebar Overlay */}
       {isMobileMenuOpen && (
         <div
@@ -80,10 +87,10 @@ export const Layout: React.FC<LayoutProps> = ({
       {/* Sidebar */}
       <aside
         className={`
-        fixed inset-y-0 left-0 z-30 w-64 sm:w-72 glass-sidebar text-white transform transition-all duration-300 ease-in-out
-        ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
-        md:relative md:translate-x-0 animate-slide-in
-      `}
+          fixed inset-y-0 left-0 z-30 w-64 sm:w-72 glass-sidebar text-white transform transition-all duration-300 ease-in-out overflow-y-auto
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
+          md:relative md:translate-x-0 animate-slide-in
+        `}
       >
         {/* Logo Section */}
         <div className="p-4 sm:p-8 border-b border-white/10">
@@ -179,7 +186,7 @@ export const Layout: React.FC<LayoutProps> = ({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-hidden">
         {/* Mobile Header */}
         <header className="glass-card sticky top-0 z-10 m-2 sm:m-4 p-3 sm:p-4 flex items-center justify-between md:hidden animate-fade-in">
           <div className="flex items-center space-x-2 sm:space-x-3">
@@ -205,7 +212,7 @@ export const Layout: React.FC<LayoutProps> = ({
         </header>
 
         {/* Content Area */}
-        <div className={`${currentView === 'shop' ? '' : 'px-2 sm:px-4 md:px-6 lg:px-8'} max-w-full animate-fade-in `}>{children}</div>
+        <div className={`${currentView === 'shop' ? '' : 'px-2 sm:px-4 md:px-6 lg:px-8'} max-w-full animate-fade-in`}>{children}</div>
       </main>
     </div>
   );
