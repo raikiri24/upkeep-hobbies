@@ -79,13 +79,16 @@ export const Home: React.FC = () => {
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
             Upkeep Hobbies Hub
           </h1>
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white neon-text-cyan">
-          Community Stats
-        </h2>
-        <p className="text-base sm:text-lg text-cyan-200 max-w-3xl mx-auto font-mono tracking-wide">
-          Gaming community hub for Beyblade battles, Unmatched decks, and trading cards.
-          <span className="block text-xs text-cyan-400 mt-2 animate-pulse">▶ STATUS: ONLINE • GAMES: ACTIVE • COMMUNITY: GROWING</span>
-        </p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white neon-text-cyan">
+            Community Stats
+          </h2>
+          <p className="text-base sm:text-lg text-cyan-200 max-w-3xl mx-auto font-mono tracking-wide">
+            Gaming community hub for Beyblade battles, Unmatched decks, and
+            trading cards.
+            <span className="block text-xs text-cyan-400 mt-2 animate-pulse">
+              ▶ STATUS: ONLINE • GAMES: ACTIVE • COMMUNITY: GROWING
+            </span>
+          </p>
         </div>
       </div>
 
@@ -98,7 +101,11 @@ export const Home: React.FC = () => {
           <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
             <div className="relative group">
               <div className="absolute -top-6 -left-6 lg:-top-8 lg:-left-8 text-neon-yellow animate-bounce drop-shadow-[0_0_30px_rgba(255,255,0,0.8)] flex items-center justify-center">
-                <Crown size={48} fill="currentColor" className="animate-pulse" />
+                <Crown
+                  size={48}
+                  fill="currentColor"
+                  className="animate-pulse"
+                />
               </div>
               <div className="absolute inset-0 rounded-full bg-gradient-to-r from-magenta-400 to-cyan-500 blur opacity-75 group-hover:opacity-100 transition duration-500 animate-pulse"></div>
               <img
@@ -131,7 +138,8 @@ export const Home: React.FC = () => {
                   </span>
                 </p>
                 <p className="text-xs text-cyan-400 mt-2 font-mono animate-pulse">
-                  ▶ THREAT_LEVEL: MAXIMUM • KILL_STREAK: {champion.weeklyScore / 10}
+                  ▶ THREAT_LEVEL: MAXIMUM • KILL_STREAK:{" "}
+                  {champion.weeklyScore / 10}
                 </p>
               </div>
             </div>
@@ -161,10 +169,10 @@ export const Home: React.FC = () => {
                   index === 0
                     ? "glass-button bg-gradient-to-r from-magenta-500 to-cyan-500 text-white neon-text-cyan"
                     : index === 1
-                    ? "glass-button bg-gradient-to-r from-gray-400 to-cyan-600 text-white neon-text-cyan"
-                    : index === 2
-                    ? "glass-button bg-gradient-to-r from-orange-500 to-cyan-500 text-white neon-text-green"
-                    : "glass-button text-cyan-300 font-mono"
+                      ? "glass-button bg-gradient-to-r from-gray-400 to-cyan-600 text-white neon-text-cyan"
+                      : index === 2
+                        ? "glass-button bg-gradient-to-r from-orange-500 to-cyan-500 text-white neon-text-green"
+                        : "glass-button text-cyan-300 font-mono"
                 }
               `}
               >
@@ -216,7 +224,7 @@ export const Home: React.FC = () => {
       <div className="animate-fade-in">
         <h3 className="text-3xl font-bold text-white mb-8 flex items-center neon-text-cyan">
           <Medal className="mr-3 text-neon-yellow animate-pulse" />
-          Specialty Awards
+          Supreme Leaderboard
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           <StatCard
@@ -341,10 +349,10 @@ export const Home: React.FC = () => {
                 selectedStat.color === "red"
                   ? "from-red-500 to-rose-600"
                   : selectedStat.color === "blue"
-                  ? "from-blue-500 to-cyan-600"
-                  : selectedStat.color === "green"
-                  ? "from-green-500 to-emerald-600"
-                  : "from-purple-500 to-fuchsia-600"
+                    ? "from-blue-500 to-cyan-600"
+                    : selectedStat.color === "green"
+                      ? "from-green-500 to-emerald-600"
+                      : "from-purple-500 to-fuchsia-600"
               }`}
             >
               <button
@@ -381,10 +389,10 @@ export const Home: React.FC = () => {
                           index === 0
                             ? "glass-button bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
                             : index === 1
-                            ? "glass-button bg-gradient-to-r from-gray-400 to-gray-600 text-white"
-                            : index === 2
-                            ? "glass-button bg-gradient-to-r from-orange-500 to-red-500 text-white"
-                            : "glass-button text-gray-300"
+                              ? "glass-button bg-gradient-to-r from-gray-400 to-gray-600 text-white"
+                              : index === 2
+                                ? "glass-button bg-gradient-to-r from-orange-500 to-red-500 text-white"
+                                : "glass-button text-gray-300"
                         }
                       `}
                     >
@@ -440,10 +448,10 @@ export const Home: React.FC = () => {
                         {selectedStat.title === "Burst King"
                           ? player.beybladeStats?.burstFinishes
                           : selectedStat.title === "Spin Master"
-                          ? player.beybladeStats?.spinFinishes
-                          : selectedStat.title === "Ring-Out Pro"
-                          ? player.beybladeStats?.overFinishes
-                          : player.beybladeStats?.extremeFinishes}
+                            ? player.beybladeStats?.spinFinishes
+                            : selectedStat.title === "Ring-Out Pro"
+                              ? player.beybladeStats?.overFinishes
+                              : player.beybladeStats?.extremeFinishes}
                       </span>
                       <span className="text-xs font-bold text-blue-300 uppercase tracking-wider">
                         Finishes
@@ -640,7 +648,10 @@ const ShopCard: React.FC<ShopCardProps> = ({
           <p className="text-xs font-semibold text-cyan-300 uppercase tracking-wider font-mono">
             {title}
           </p>
-          <ExternalLink size={14} className="text-neon-cyan ml-1 animate-pulse" />
+          <ExternalLink
+            size={14}
+            className="text-neon-cyan ml-1 animate-pulse"
+          />
         </div>
       </div>
 

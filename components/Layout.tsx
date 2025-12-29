@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { User } from "../types";
 import {
   ShoppingBag,
@@ -10,7 +10,9 @@ import {
   User as UserIcon,
   Award,
   Layers,
+  MessageCircle,
 } from "lucide-react";
+import JurilyaChat from "./JurilyaChat";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -28,6 +30,7 @@ export const Layout: React.FC<LayoutProps> = ({
   onLogout,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [showKepli, setShowKepli] = useState(false);
 
   const navItems = [
     {
@@ -56,7 +59,7 @@ export const Layout: React.FC<LayoutProps> = ({
     },
     {
       id: "specialtyAwards",
-      label: "Specialty Awards",
+      label: "Supreme Leaderboard",
       icon: Award,
       description: "Player stats & awards",
     },
@@ -66,7 +69,7 @@ export const Layout: React.FC<LayoutProps> = ({
       icon: ShieldHalf,
       description: "Team news",
     },
-      {
+    {
       id: "unmatchedDecks",
       label: "Games",
       icon: Layers,
@@ -132,7 +135,10 @@ export const Layout: React.FC<LayoutProps> = ({
                 {user.email}
               </p>
             </div>
-            <UserIcon size={14} className="hidden sm:block text-cyan-300 animate-pulse" />
+            <UserIcon
+              size={14}
+              className="hidden sm:block text-cyan-300 animate-pulse"
+            />
           </div>
         </div>
 
@@ -167,7 +173,9 @@ export const Layout: React.FC<LayoutProps> = ({
                 <item.icon size={18} className="sm:w-5 sm:h-5" />
               </div>
               <div className="flex-1 text-left">
-                <p className="font-medium text-sm sm:text-base tracking-wide">{item.label}</p>
+                <p className="font-medium text-sm sm:text-base tracking-wide">
+                  {item.label}
+                </p>
                 <p className="text-xs text-cyan-400 hidden sm:block font-mono">
                   {item.description}
                 </p>
@@ -212,7 +220,19 @@ export const Layout: React.FC<LayoutProps> = ({
         </header>
 
         {/* Content Area */}
-        <div className={`${currentView === 'shop' ? '' : 'px-2 sm:px-4 md:px-6 lg:px-8'} max-w-full animate-fade-in`}>{children}</div>
+        <div
+          className={`${currentView === "shop" ? "" : "px-2 sm:px-4 md:px-6 lg:px-8"} max-w-full animate-fade-in`}
+        >
+          {children}
+        </div>
+
+        {/* Global Kepli Chat - only show on Unmatched page */}
+        {currentView === "unmatchedDecks" && (
+          <JurilyaChat
+            isOpen={showKepli}
+            onToggle={() => setShowKepli(!showKepli)}
+          />
+        )}
       </main>
     </div>
   );

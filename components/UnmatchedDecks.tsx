@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { unmatchedApi } from '../services/unmatchedApi';
 import { UnmatchedDeck } from '../types';
+import JurilyaChat from './JurilyaChat';
 
 const UnmatchedDecks: React.FC = () => {
- const [decks, setDecks] = useState<UnmatchedDeck[]>([]);
+  const [decks, setDecks] = useState<UnmatchedDeck[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedRelease, setSelectedRelease] = useState<string>('all');
   const [selectedDeck, setSelectedDeck] = useState<UnmatchedDeck | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showKepli, setShowKepli] = useState(false);
 
   const uniqueReleases = useMemo(() => {
     const releases = new Set<string>();
@@ -78,7 +80,14 @@ const UnmatchedDecks: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 relative">
+      {/* Kepli Chat Button */}
+      <JurilyaChat 
+        currentDeck={selectedDeck || undefined}
+        isOpen={showKepli}
+        onToggle={() => setShowKepli(!showKepli)}
+      />
+
       <h1 className="text-3xl font-bold text-white mb-6 animate-fade-in">Unmatched Decks</h1>
       
       <div className="glass-card p-6 mb-6">
@@ -241,9 +250,18 @@ const UnmatchedDecks: React.FC = () => {
               )}
               
               <div className="mt-4 pt-4 border-t border-gray-600">
-                <div className="text-xs text-center text-blue-300 font-medium">
-                  Click to view all cards with images
-                </div>
+                  <div className="mt-4 pt-4 border-t border-gray-600 space-y-2">
+                    <div className="text-xs text-center text-blue-300 font-medium">
+                      Click to view all cards with images
+                    </div>
+                    {/* Ask Kepli Button */}
+                    <button
+                      onClick={() => setShowKepli(true)}
+                      className="w-full glass-button py-2 text-cyan-300 text-sm font-mono hover:scale-105 transition-all border-cyan-400/30"
+                    >
+                      🤖 Ask Kepli about {deck.hero}
+                    </button>
+                  </div>
               </div>
             </div>
           </div>

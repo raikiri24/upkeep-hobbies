@@ -243,6 +243,24 @@ body::before {
   outline: none;
 }
 
+/* Fix for select dropdown visibility */
+select.glass-input {
+  color: white;
+  background-color: rgba(22, 33, 62, 0.8);
+}
+
+select.glass-input option {
+  background-color: rgba(22, 33, 62, 0.95);
+  color: white;
+  padding: 8px;
+}
+
+select.glass-input option:hover,
+select.glass-input option:checked {
+  background-color: rgba(0, 255, 255, 0.2);
+  color: white;
+}
+
 .glass-modal {
   background: linear-gradient(135deg, rgba(10, 10, 15, 0.98), rgba(22, 33, 62, 0.98));
   backdrop-filter: blur(20px);
