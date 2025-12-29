@@ -66,11 +66,11 @@ export const Layout: React.FC<LayoutProps> = ({
       icon: ShieldHalf,
       description: "Team news",
     },
-    {
+      {
       id: "unmatchedDecks",
-      label: "Unmatched Decks",
+      label: "Games",
       icon: Layers,
-      description: "Browse all decks",
+      description: "Browse all games & decks",
     },
   ];
 
@@ -93,51 +93,51 @@ export const Layout: React.FC<LayoutProps> = ({
         `}
       >
         {/* Logo Section */}
-        <div className="p-4 sm:p-8 border-b border-white/10">
+        <div className="p-4 sm:p-8 border-b border-cyan-400/30 futuristic-grid">
           <div className="flex flex-col items-center space-y-3 sm:space-y-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl glass-button flex items-center justify-center animate-float">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl glass-button flex items-center justify-center animate-float cyber-border animate-pulse">
               <img
                 src="/logo.png"
-                alt="Upkeep Hobbies"
+                alt="Nexus Hub"
                 className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl"
               />
             </div>
             <div className="text-center">
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                Upkeep Hobbies
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                Upkeep Hobbies Hub
               </h1>
-              <p className="text-xs sm:text-sm text-gray-300 mt-1">
-                Beyblade League Manager
+              <p className="text-xs sm:text-sm text-cyan-300 mt-1 font-mono tracking-wide">
+                Hobby Shop & Gaming Community
               </p>
             </div>
           </div>
         </div>
 
         {/* User Profile Section */}
-        <div className="p-4 sm:p-6 border-b border-white/10">
-          <div className="flex items-center space-x-2 sm:space-x-3 glass-button p-2 sm:p-3 rounded-xl">
+        <div className="p-4 sm:p-6 border-b border-cyan-400/30">
+          <div className="flex items-center space-x-2 sm:space-x-3 glass-button p-2 sm:p-3 rounded-xl cyber-border">
             <div className="relative">
               <img
                 src={user.avatar}
                 alt={user.name}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-white/20"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-cyan-400/50 cyber-border"
               />
-              <div className="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-green-400 rounded-full border-2 border-white/20"></div>
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-neon-green rounded-full border-2 border-cyan-400/50 animate-pulse"></div>
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-white text-sm sm:text-base truncate">
                 {user.name}
               </p>
-              <p className="text-xs sm:text-sm text-gray-300 truncate">
+              <p className="text-xs sm:text-sm text-cyan-300 truncate">
                 {user.email}
               </p>
             </div>
-            <UserIcon size={14} className="hidden sm:block text-gray-300" />
+            <UserIcon size={14} className="hidden sm:block text-cyan-300 animate-pulse" />
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="p-3 sm:p-4 space-y-2 flex-1">
+        <nav className="p-3 sm:p-4 space-y-2 flex-1 data-stream">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -146,29 +146,29 @@ export const Layout: React.FC<LayoutProps> = ({
                 setIsMobileMenuOpen(false);
               }}
               className={`
-                w-full flex items-center space-x-3 sm:space-x-4 px-3 py-3 sm:px-4 sm:py-4 rounded-xl transition-all duration-200 group
+                w-full flex items-center space-x-3 sm:space-x-4 px-3 py-3 sm:px-4 sm:py-4 rounded-xl transition-all duration-200 group font-mono border-l-2 border-transparent
                 ${
                   currentView === item.id
-                    ? "glass-button bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-400/30 text-white"
-                    : "text-gray-300 hover:text-white hover:bg-white/10"
+                    ? "glass-button bg-gradient-to-r from-cyan-500/20 to-magenta-500/20 border-cyan-400/50 text-white neon-text-cyan animate-pulse"
+                    : "text-cyan-300 hover:text-white hover:bg-cyan-500/10 hover:border-cyan-400/30"
                 }
               `}
             >
               <div
                 className={`
-                p-2 rounded-lg transition-all duration-200 flex items-center justify-center
+                p-2 rounded-lg transition-all duration-200 flex items-center justify-center cyber-border
                 ${
                   currentView === item.id
-                    ? "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
-                    : "bg-white/10 group-hover:bg-white/20"
+                    ? "bg-gradient-to-r from-cyan-500 to-magenta-500 text-white animate-pulse"
+                    : "bg-cyan-500/20 group-hover:bg-cyan-500/30 group-hover:scale-110"
                 }
               `}
               >
                 <item.icon size={18} className="sm:w-5 sm:h-5" />
               </div>
               <div className="flex-1 text-left">
-                <p className="font-medium text-sm sm:text-base">{item.label}</p>
-                <p className="text-xs text-gray-400 hidden sm:block">
+                <p className="font-medium text-sm sm:text-base tracking-wide">{item.label}</p>
+                <p className="text-xs text-cyan-400 hidden sm:block font-mono">
                   {item.description}
                 </p>
               </div>
@@ -177,10 +177,10 @@ export const Layout: React.FC<LayoutProps> = ({
         </nav>
 
         {/* Footer */}
-        <div className="p-3 sm:p-4 border-t border-white/10">
-          <div className="text-center text-xs text-gray-400">
+        <div className="p-3 sm:p-4 border-t border-cyan-400/30 futuristic-grid">
+          <div className="text-center text-xs text-cyan-400 font-mono">
             <p>© 2026 Upkeep Hobbies</p>
-            <p className="mt-1">Version 1.0.0</p>
+            <p className="mt-1">Beyblade • Unmatched • Trading Cards & More</p>
           </div>
         </div>
       </aside>
@@ -188,20 +188,20 @@ export const Layout: React.FC<LayoutProps> = ({
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
         {/* Mobile Header */}
-        <header className="glass-card sticky top-0 z-10 m-2 sm:m-4 p-3 sm:p-4 flex items-center justify-between md:hidden animate-fade-in">
+        <header className="glass-card sticky top-0 z-10 m-2 sm:m-4 p-3 sm:p-4 flex items-center justify-between md:hidden animate-fade-in futuristic-grid scanning">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="glass-button p-2 rounded-lg flex items-center justify-center"
+              className="glass-button p-2 rounded-lg flex items-center justify-center cyber-border neon-text-cyan"
             >
-              <Menu size={18} className="sm:w-5 sm:h-5" />
+              <Menu size={18} className="sm:w-5 sm:h-5 animate-pulse" />
             </button>
-            <h1 className="text-lg sm:text-xl font-bold capitalize">
+            <h1 className="text-lg sm:text-xl font-bold capitalize font-mono neon-text-cyan">
               {currentView.replace(/([A-Z])/g, " $1").trim()}
             </h1>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full glass-button flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full glass-button flex items-center justify-center cyber-border">
               <img
                 src={user.avatar}
                 alt={user.name}

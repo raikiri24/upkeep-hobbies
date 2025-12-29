@@ -1,7 +1,7 @@
 # Deployment Instructions for Production
 
 ## Current Issue
-The production deployment is trying to use `https://unmatched.cards/api/db/decks` but getting CORS errors because:
+The production deployment is trying to use `https://lkjnw31n3f.execute-api.ap-northeast-1.amazonaws.com/staging/unmatched-decks` but getting CORS errors because:
 1. The production environment is detected correctly
 2. The API requests are coming from `www.upkeephobbies.shop` domain
 3. The CORS policy blocks cross-origin requests

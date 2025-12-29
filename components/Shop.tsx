@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { User, Product } from '../types';
-import { Package, ExternalLink, AlertCircle } from 'lucide-react';
+import { Package, ExternalLink, AlertCircle, Search, Filter, X } from 'lucide-react';
 import { api } from '../services/api';
 
 interface ShopProps {
@@ -11,6 +11,12 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 10000 });
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -29,12 +35,42 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
     fetchProducts();
   }, []);
 
+  // Get unique categories from products
+  const categories = useMemo(() => {
+    const cats = ['All', ...new Set(products.map(p => p.category).filter(Boolean))];
+    return cats;
+  }, [products]);
+
+  // Filter products based on search, category, and price
+  const filteredProducts = useMemo(() => {
+    return products.filter(product => {
+      // Search filter
+      const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          product.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          product.category.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // Category filter
+      const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
+      
+      // Price range filter
+      const matchesPrice = product.price >= priceRange.min && product.price <= priceRange.max;
+      
+      return matchesSearch && matchesCategory && matchesPrice;
+    });
+  }, [products, searchQuery, selectedCategory, priceRange]);
+
+  // Get price range from products
+  const maxPrice = useMemo(() => {
+    if (products.length === 0) return 10000;
+    return Math.max(...products.map(p => p.price));
+  }, [products]);
+
   if (loading) {
     return (
-      <div className="h-full w-full bg-black relative overflow-hidden flex items-center justify-center">
+      <div className="h-full w-full bg-black relative overflow-hidden flex items-center justify-center futuristic-grid">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-cyan-500"></div>
-          <p className="text-cyan-400 mt-4">Loading products...</p>
+          <div className="cyber-loader mx-auto mb-4"></div>
+          <p className="text-cyan-400 mt-4 font-mono">Loading shop catalog...</p>
         </div>
       </div>
     );
@@ -42,13 +78,13 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
 
   if (error) {
     return (
-      <div className="h-full w-full bg-black relative overflow-hidden flex items-center justify-center">
+      <div className="h-full w-full bg-black relative overflow-hidden flex items-center justify-center futuristic-grid">
         <div className="text-center">
-          <AlertCircle className="text-red-500 mx-auto mb-4" size={48} />
-          <p className="text-red-400">{error}</p>
+          <AlertCircle className="text-neon-magenta mx-auto mb-4" size={48} />
+          <p className="text-red-400 font-mono">{error}</p>
           <button 
             onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
+            className="mt-4 px-4 py-2 glass-button text-cyan-300 rounded-lg hover:scale-105 transition-all"
           >
             Retry
           </button>
@@ -84,39 +120,163 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
       
       <div className="relative z-10 h-full w-full flex flex-col">
         {/* Fixed Header */}
-        <div className="flex-shrink-0 w-full text-center py-3 sm:py-2 bg-black/50 backdrop-blur-md border-b border-cyan-500/20">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-wider mb-1">
-            <span className="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              UPKEEP
-            </span>
-            <span className="text-white ml-1 sm:ml-2">HAVEN</span>
-          </h1>
-          <p className="text-gray-400 text-xs sm:text-xs">
-            Order via Facebook Messenger
-          </p>
+        <div className="flex-shrink-0 w-full bg-black/50 backdrop-blur-md border-b border-cyan-500/20">
+          <div className="text-center py-3 sm:py-2">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-wider mb-1 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              Upkeep Hobbies Shop
+            </h1>
+            <p className="text-gray-400 text-xs sm:text-xs">
+              Order via Facebook Messenger
+            </p>
+          </div>
+          
+          {/* Search and Filters */}
+          <div className="px-4 pb-4 space-y-3">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-400" size={18} />
+              <input
+                type="text"
+                placeholder="Search products, SKU, or categories..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 glass-input text-cyan-300 placeholder-cyan-500"
+              />
+            </div>
+            
+            {/* Filter Controls */}
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 flex-1">
+                {/* Category Filter */}
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="flex-1 px-3 py-2 glass-input text-cyan-300 bg-transparent"
+                >
+                  {categories.map(category => (
+                    <option key={category} value={category} className="bg-gray-900">
+                      {category}
+                    </option>
+                  ))}
+                </select>
+                
+                {/* Filter Toggle Button */}
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="glass-button px-3 py-2 flex items-center gap-2 text-cyan-300"
+                >
+                  <Filter size={16} />
+                  <span className="text-sm hidden sm:inline">Filters</span>
+                </button>
+              </div>
+              
+              {/* Results Count */}
+              <span className="text-xs text-cyan-400 font-mono">
+                {filteredProducts.length} / {products.length} items
+              </span>
+            </div>
+            
+            {/* Advanced Filters Panel */}
+            {showFilters && (
+              <div className="glass-card p-4 space-y-4 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-cyan-300">Price Range</h3>
+                  <button
+                    onClick={() => setShowFilters(false)}
+                    className="text-cyan-400 hover:text-cyan-300"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-cyan-400 w-20">Min:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max={priceRange.max}
+                      value={priceRange.min}
+                      onChange={(e) => setPriceRange(prev => ({ ...prev, min: Number(e.target.value) }))}
+                      className="flex-1 px-3 py-1 glass-input text-cyan-300 text-sm"
+                    />
+                    <span className="text-xs text-cyan-400">₱</span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-cyan-400 w-20">Max:</span>
+                    <input
+                      type="number"
+                      min={priceRange.min}
+                      max={maxPrice}
+                      value={priceRange.max}
+                      onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
+                      className="flex-1 px-3 py-1 glass-input text-cyan-300 text-sm"
+                    />
+                    <span className="text-xs text-cyan-400">₱</span>
+                  </div>
+                  
+                  {/* Price Range Slider */}
+                  <div className="pt-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max={maxPrice}
+                      value={priceRange.max}
+                      onChange={(e) => setPriceRange(prev => ({ ...prev, max: Number(e.target.value) }))}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-cyan-400 mt-1">
+                      <span>₱0</span>
+                      <span>₱{maxPrice.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Clear Filters */}
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory('All');
+                    setPriceRange({ min: 0, max: maxPrice });
+                  }}
+                  className="w-full glass-button py-2 text-cyan-300 text-sm"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Products Container */}
         <div className="flex-1 overflow-y-auto">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1 sm:gap-2 py-2 w-full h-full px-2 sm:px-6 md:px-12">
-            {products.map((product) => (
+          {filteredProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-center">
+              <Package className="text-cyan-400/50 mb-4" size={48} />
+              <p className="text-cyan-300 font-mono">No products found</p>
+              <p className="text-cyan-500 text-sm mt-2">Try adjusting your filters or search terms</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1 sm:gap-2 py-2 w-full h-full px-2 sm:px-6 md:px-12">
+              {filteredProducts.map((product) => (
               <div 
                 key={product.id} 
                 className="group relative flex flex-col h-[320px] sm:h-[340px] md:h-[360px] min-w-0"
               >
-                {/* Product Card */}
-                <div className="relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border border-cyan-500/20 overflow-hidden flex flex-col h-full">
+                 {/* Product Card */}
+                 <div className="relative glass-card rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border border-cyan-500/20 overflow-hidden flex flex-col h-full futuristic-grid">
                   {/* Holographic Border Effect */}
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-purple-500/10 to-pink-500/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                   
-                  {/* Stock Badges */}
-                  {product.stock <= 2 && product.stock > 0 && (
-                    <div className="absolute top-2 left-2 z-20">
-                      <div className="bg-gradient-to-r from-red-500 to-pink-600 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse border border-red-400/50">
-                        ⚡ LOW
-                      </div>
-                    </div>
-                  )}
+                   {/* Stock Badges */}
+                   {product.stock <= 2 && product.stock > 0 && (
+                     <div className="absolute top-2 left-2 z-20">
+                       <div className="glass-button bg-gradient-to-r from-red-500 to-pink-600 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse border border-red-400/50">
+                         ⚡ LOW
+                       </div>
+                     </div>
+                   )}
                   
                   <div className="absolute top-2 right-2 z-20">
                     <div className={`px-2 py-1 rounded-full text-xs font-bold backdrop-blur-sm border ${
@@ -180,16 +340,16 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
                       )}
                     </div>
 
-                    {/* Order Button */}
-                    <button
-                      onClick={() => handleOrderClick(product.name, product.sku)}
-                      disabled={product.stock === 0}
-                      className={`w-full py-2 px-3 rounded-lg font-bold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl relative overflow-hidden mt-auto ${
-                        product.stock > 0
-                          ? 'bg-gradient-to-r from-cyan-500 to-purple-600 text-white hover:from-cyan-600 hover:to-purple-700 border border-cyan-400/50'
-                          : 'bg-gray-800 text-gray-500 cursor-not-allowed border border-gray-700'
-                      }`}
-                    >
+                     {/* Order Button */}
+                     <button
+                       onClick={() => handleOrderClick(product.name, product.sku)}
+                       disabled={product.stock === 0}
+                       className={`w-full py-2 px-3 glass-button rounded-lg font-bold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl relative overflow-hidden mt-auto ${
+                         product.stock > 0
+                           ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400/50 hover:border-cyan-400/80'
+                           : 'bg-gray-800 text-gray-500 cursor-not-allowed border-gray-700'
+                       }`}
+                     >
                       {/* Button Glow Effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                       <div className="relative flex items-center justify-center space-x-2">
@@ -204,7 +364,8 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 rounded-xl blur-lg -z-10 group-hover:from-cyan-400/40 group-hover:to-purple-400/40 transition-all duration-300"></div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -14,9 +14,9 @@ const AppContent: React.FC = () => {
   // Open Source Mode: Default to a Guest/Viewer User
   const [currentUser] = useState<User>({
     id: 'guest',
-    name: 'Guest Viewer',
-    email: 'guest@upkeep.com',
-    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Guest'
+    name: 'Guest User',
+    email: 'visitor@nexus.hub',
+    avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=NexusGuest'
   });
 
   const location = useLocation();
