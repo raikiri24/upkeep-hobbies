@@ -21,6 +21,8 @@ export const JurilyaChat: React.FC<JurilyaChatProps> = ({
   const [isTyping, setIsTyping] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [showRelatedCards, setShowRelatedCards] = useState(true);
+  const [showJurilyaSuggestions, setShowJurilyaSuggestions] = useState(true);
   const [currentSuggestions, setCurrentSuggestions] = useState<string[]>([]);
   const [currentRelatedCards, setCurrentRelatedCards] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -261,10 +263,16 @@ export const JurilyaChat: React.FC<JurilyaChatProps> = ({
             </div>
 
             {/* Related Cards */}
-            {currentRelatedCards.length > 0 && (
+            {currentRelatedCards.length > 0 && showRelatedCards && (
               <div className="p-3 border-t border-cyan-400/20">
                 <div className="flex justify-between items-center mb-2">
                   <p className="text-xs text-cyan-400 font-mono">🃏 Related Cards:</p>
+                  <button
+                    onClick={() => setShowRelatedCards(false)}
+                    className="text-xs text-cyan-500 hover:text-cyan-300 transition-colors"
+                  >
+                    Hide
+                  </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {currentRelatedCards.map((card, index) => (
@@ -281,10 +289,16 @@ export const JurilyaChat: React.FC<JurilyaChatProps> = ({
             )}
 
             {/* AI Suggestions */}
-            {currentSuggestions.length > 0 && (
+            {currentSuggestions.length > 0 && showJurilyaSuggestions && (
               <div className="p-3 border-t border-cyan-400/20 bg-cyan-500/10">
                 <div className="flex justify-between items-center mb-2">
                   <p className="text-xs text-cyan-400 font-mono">🤖 Jurilya Suggestions:</p>
+                  <button
+                    onClick={() => setShowJurilyaSuggestions(false)}
+                    className="text-xs text-cyan-500 hover:text-cyan-300 transition-colors"
+                  >
+                    Hide
+                  </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {currentSuggestions.map((suggestion, index) => (
@@ -322,6 +336,41 @@ export const JurilyaChat: React.FC<JurilyaChatProps> = ({
                       {suggestion}
                     </button>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Show Hidden Sections */}
+            {(!showSuggestions || !showRelatedCards || !showJurilyaSuggestions || currentRelatedCards.length > 0 || currentSuggestions.length > 0) && (
+              <div className="p-3 border-t border-cyan-400/20">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-xs text-cyan-400 font-mono">👁️ Show Hidden:</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {!showSuggestions && messages.length <= 2 && currentSuggestions.length === 0 && (
+                    <button
+                      onClick={() => setShowSuggestions(true)}
+                      className="glass-button px-2 py-1 text-xs text-cyan-300 hover:text-cyan-100 hover:scale-105 transition-all"
+                    >
+                      💡 Quick Questions
+                    </button>
+                  )}
+                  {!showRelatedCards && currentRelatedCards.length > 0 && (
+                    <button
+                      onClick={() => setShowRelatedCards(true)}
+                      className="glass-button px-2 py-1 text-xs text-purple-300 hover:text-purple-100 hover:scale-105 transition-all border border-purple-400/30"
+                    >
+                      🃏 Related Cards
+                    </button>
+                  )}
+                  {!showJurilyaSuggestions && currentSuggestions.length > 0 && (
+                    <button
+                      onClick={() => setShowJurilyaSuggestions(true)}
+                      className="glass-button px-2 py-1 text-xs text-cyan-300 hover:text-cyan-100 hover:scale-105 transition-all border border-cyan-400/40 bg-cyan-600/20"
+                    >
+                      🤖 Jurilya Suggestions
+                    </button>
+                  )}
                 </div>
               </div>
             )}
