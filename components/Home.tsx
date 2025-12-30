@@ -439,6 +439,7 @@ const GameScheduleCard: React.FC<{ game: GameSchedule }> = ({ game }) => {
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const isLowStock = product.stock <= 3;
+  const [imageError, setImageError] = React.useState(false);
 
   return (
     <div className="glass-card p-4 transition-all duration-300 hover:scale-105 cursor-pointer futuristic-grid">
@@ -451,7 +452,16 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           </div>
         )}
         <div className="h-24 bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-lg flex items-center justify-center mb-3 relative overflow-hidden">
-          <Package className="text-cyan-400/60" size={32} />
+          {product.imageUrl && !imageError ? (
+            <img 
+              src={product.imageUrl} 
+              alt={product.name}
+              className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <Package className="text-cyan-400/60" size={32} />
+          )}
         </div>
         <h4 className="text-sm font-bold text-white mb-1 truncate">
           {product.name}
