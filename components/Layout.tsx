@@ -40,6 +40,12 @@ export const Layout: React.FC<LayoutProps> = ({
       description: "Dashboard overview",
     },
     {
+      id: "beybladeRankedGames",
+      label: "Beyblade Games",
+      icon: Trophy,
+      description: "Ranked battles & stats",
+    },
+    {
       id: "players",
       label: "Players",
       icon: Users,
@@ -71,7 +77,7 @@ export const Layout: React.FC<LayoutProps> = ({
     },
     {
       id: "unmatchedDecks",
-      label: "Games",
+      label: "Unmatched Decks",
       icon: Layers,
       description: "Browse all games & decks",
     },

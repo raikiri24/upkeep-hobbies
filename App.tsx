@@ -5,6 +5,7 @@ import { Shop } from './components/Shop';
 import { Tournaments } from './components/Tournaments';
 import { Home } from './components/Home';
 import { Players } from './components/Players';
+import { BeybladeRankedGames } from './components/BeybladeRankedGames';
 import PBBLTeamUpdates from './components/PBBLTeamUpdates'; // Import the new component
 import SpecialtyAwards from './components/SpecialtyAwards'; // Import the new component
 import UnmatchedDecks from './components/UnmatchedDecks'; // Import the new component
@@ -29,6 +30,7 @@ const AppContent: React.FC = () => {
     if (path === '/shop') return 'shop';
     if (path === '/tournaments') return 'tournaments';
     if (path === '/players') return 'players';
+    if (path === '/beyblade-ranked-games') return 'beybladeRankedGames';
     if (path === '/pbbl-team-updates') return 'pbblTeamUpdates';
     if (path === '/specialty-awards') return 'specialtyAwards';
     if (path === '/unmatched-decks') return 'unmatchedDecks';
@@ -41,6 +43,7 @@ const AppContent: React.FC = () => {
       shop: '/shop',
       tournaments: '/tournaments',
       players: '/players',
+      beybladeRankedGames: '/beyblade-ranked-games',
       pbblTeamUpdates: '/pbbl-team-updates',
       specialtyAwards: '/specialty-awards',
       unmatchedDecks: '/unmatched-decks'
@@ -63,6 +66,7 @@ const AppContent: React.FC = () => {
         <Route path="/shop" element={<Shop user={currentUser} />} />
         <Route path="/tournaments" element={<Tournaments user={currentUser} />} />
         <Route path="/players" element={<Players />} />
+        <Route path="/beyblade-ranked-games" element={<BeybladeRankedGames />} />
         <Route path="/pbbl-team-updates" element={<PBBLTeamUpdates />} />
         <Route path="/specialty-awards" element={<SpecialtyAwards />} />
         <Route path="/unmatched-decks" element={<UnmatchedDecks />} />

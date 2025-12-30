@@ -1,669 +1,530 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../services/api";
-import { User } from "../types";
-import { LoadingScreen } from "./LoadingScreen";
+import { User, Product, Tournament } from "../types";
 import {
-  Trophy,
-  Medal,
+  Calendar,
+  ShoppingBag,
   Star,
-  Crown,
-  Zap,
-  RotateCw,
-  ArrowRightFromLine,
-  Flame,
-  X,
-  Facebook,
-  Twitter,
-  Instagram,
-  Youtube,
+  Megaphone,
+  Clock,
+  TrendingUp,
+  Package,
+  AlertCircle,
   ExternalLink,
+  Users,
+  Zap,
+  Trophy,
 } from "lucide-react";
+
+interface Announcement {
+  id: string;
+  title: string;
+  content: string;
+  type: "info" | "urgent" | "event";
+  timestamp: Date;
+  author?: string;
+}
+
+interface GameSchedule {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  location: string;
+  type: "tournament" | "casual" | "training";
+  participants?: number;
+  maxParticipants?: number;
+}
 
 export const Home: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Modal State
-  const [selectedStat, setSelectedStat] = useState<{
-    title: string;
-    players: User[];
-    icon: any;
-    color: "red" | "blue" | "green" | "purple";
-  } | null>(null);
+  // Mock data for announcements and schedule (in real app, these would come from API)
+  const [announcements] = useState<Announcement[]>([
+    {
+      id: "1",
+      title: "🎉 Shop Update",
+      content:
+        "New Beyblade Burst generation products now available in the shop!",
+      type: "info",
+      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+      author: "Shop Manager",
+    },
+    {
+      id: "2",
+      title: "🏆 Tournament Results",
+      content:
+        "Congratulations to last week's tournament winners! Check out rankings.",
+      type: "event",
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+      author: "Tournament Admin",
+    },
+  ]);
+
+  // Static game schedule - Friday and Sunday tournaments
+  const getStaticGameSchedule = () => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth();
+
+    // Find next Friday (Basagan ng Bungo)
+    const daysUntilFriday = (5 - today.getDay() + 7) % 7 || 7; // 5 = Friday
+    const nextFriday = new Date(today);
+    nextFriday.setDate(today.getDate() + daysUntilFriday);
+
+    // Find next Sunday (Laglagan sa Langit)
+    const daysUntilSunday = (0 - today.getDay() + 7) % 7 || 7; // 0 = Sunday
+    const nextSunday = new Date(today);
+    nextSunday.setDate(today.getDate() + daysUntilSunday);
+
+    return [
+      {
+        id: "friday-tournament",
+        title: "Basagan ng Bungo",
+        date: nextFriday.toISOString().split("T")[0],
+        time: "5:00 PM",
+        location: "Upkeep Hobbies Shop",
+        type: "tournament" as const,
+        participants: 12,
+        maxParticipants: 16,
+      },
+      {
+        id: "sunday-tournament",
+        title: "Laglagan sa Langit",
+        date: nextSunday.toISOString().split("T")[0],
+        time: "5:00 PM",
+        location: "Upkeep Hobbies Shop",
+        type: "tournament" as const,
+        participants: 15,
+        maxParticipants: 20,
+      },
+    ];
+  };
+
+  const [gameSchedule] = useState<GameSchedule[]>(getStaticGameSchedule());
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await api.getAllUsers();
-      setUsers(data);
-      setLoading(false);
+      try {
+        const [usersData, productsData, tournamentsData] = await Promise.all([
+          api.getAllUsers(),
+          api.getProducts(),
+          api.getTournaments(),
+        ]);
+        setUsers(usersData);
+        setProducts(productsData);
+        setTournaments(tournamentsData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, []);
 
-  if (loading) {
-    return <LoadingScreen message="Loading community stats..." size="large" />;
-  }
+  // Get new arrivals (last 10 products)
+  const newArrivals = products.filter((p) => p.stock > 0).slice(0, 6);
 
-  const getTopStatPlayers = (stat: keyof User["beybladeStats"]) => {
-    return users
-      .filter((user) => user.beybladeStats && user.beybladeStats[stat] > 0)
-      .sort(
-        (a, b) =>
-          (b.beybladeStats?.[stat] || 0) - (a.beybladeStats?.[stat] || 0)
-      );
+  // Get low stock items
+  const lowStockItems = products
+    .filter((p) => p.stock > 0 && p.stock <= 3)
+    .slice(0, 4);
+
+  // Get upcoming games (sorted by date)
+  const upcomingGames = gameSchedule
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3);
+
+  const formatTimestamp = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffHours < 1) return "Just now";
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
   };
 
-  const topSpin = getTopStatPlayers("spinFinishes");
-  const topBurst = getTopStatPlayers("burstFinishes");
-  const topOver = getTopStatPlayers("overFinishes");
-  const topExtreme = getTopStatPlayers("extremeFinishes");
-
-  const topPlayers = users
-    .filter((user) => user.weeklyScore > 0)
-    .sort((a, b) => b.weeklyScore - a.weeklyScore)
-    .slice(0, 5);
-
-  const champion = topPlayers[0];
+  if (loading) {
+    return (
+      <div className="h-full w-full bg-black relative overflow-hidden flex items-center justify-center futuristic-grid">
+        <div className="text-center">
+          <div className="cyber-loader mx-auto mb-4"></div>
+          <p className="text-cyan-400 mt-4 font-mono">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-12 pb-12 relative">
+    <div className="space-y-8 pb-12">
       {/* Header Section */}
-      <div className="text-center space-y-3 sm:space-y-4 animate-fade-in relative">
+      <div className="text-center space-y-4 animate-fade-in relative">
         <div className="absolute inset-0 data-stream"></div>
         <div className="relative z-10">
           <div className="mb-4">
             <span className="inline-block glass-button px-4 py-2 text-xs neon-text-cyan font-bold tracking-widest animate-pulse">
-              // SYSTEM ONLINE v2.0.24
+              // UPKEEP HOBBIES HUB v2.0.24
             </span>
           </div>
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Upkeep Hobbies Hub
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            Welcome Home
           </h1>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white neon-text-cyan">
-            Community Stats
-          </h2>
-          <p className="text-base sm:text-lg text-cyan-200 max-w-3xl mx-auto font-mono tracking-wide">
-            Gaming community hub for Beyblade battles, Unmatched decks, and
-            trading cards.
-            <span className="block text-xs text-cyan-400 mt-2 animate-pulse">
-              ▶ STATUS: ONLINE • GAMES: ACTIVE • COMMUNITY: GROWING
+          <p className="text-lg sm:text-xl text-cyan-200 max-w-3xl mx-auto font-mono tracking-wide">
+            Your gateway to Beyblade battles, shop updates, and community
+            events.
+            <span className="block text-sm text-cyan-400 mt-2 animate-pulse">
+              ▶ STATUS: ONLINE • COMMUNITY: {users.length} PLAYERS • SHOP:{" "}
+              {newArrivals.length} NEW ITEMS
             </span>
           </p>
         </div>
       </div>
 
-      {/* Hero: Player of the Week */}
-      {champion && (
-        <div className="glass-card p-8 md:p-12 animate-scale-in relative futuristic-grid scanning">
-          <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-gradient-to-r from-magenta-500 to-cyan-500 opacity-20 rounded-full blur-[100px] animate-pulse"></div>
-          <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-gradient-to-r from-cyan-500 to-green-600 opacity-20 rounded-full blur-[100px] animate-pulse"></div>
-
-          <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 lg:gap-10">
-            <div className="relative group">
-              <div className="absolute -top-6 -left-6 lg:-top-8 lg:-left-8 text-neon-yellow animate-bounce drop-shadow-[0_0_30px_rgba(255,255,0,0.8)] flex items-center justify-center">
-                <Crown
-                  size={48}
-                  fill="currentColor"
-                  className="animate-pulse"
-                />
-              </div>
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-magenta-400 to-cyan-500 blur opacity-75 group-hover:opacity-100 transition duration-500 animate-pulse"></div>
-              <img
-                src={champion.avatar}
-                alt={champion.name}
-                className="relative w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full border-4 border-cyan-400/50 shadow-2xl object-cover cyber-border"
-              />
-              <div className="absolute -bottom-3 lg:-bottom-4 left-1/2 transform -translate-x-1/2 glass-button px-4 py-1 lg:px-6 lg:py-2 rounded-full shadow-lg tracking-wider uppercase whitespace-nowrap border-cyan-400/80 text-xs sm:text-sm neon-text-cyan animate-pulse">
-                [ ALPHA_PILOT ]
-              </div>
-            </div>
-
-            <div className="text-center lg:text-left space-y-3 lg:space-y-4">
-              <div className="inline-flex items-center space-x-2 glass-button px-3 py-1 lg:px-4 lg:py-2 rounded-full text-xs sm:text-sm font-semibold text-white border-cyan-400/60 animate-pulse">
-                <Star
-                  size={14}
-                  className="text-neon-yellow flex-shrink-0"
-                  fill="currentColor"
-                />
-                <span className="tracking-wide">PLAYER OF THE WEEK</span>
-              </div>
-              <div>
-                <h3 className="text-2xl sm:text-4xl lg:text-6xl font-black tracking-tight text-white neon-text-cyan">
-                  {champion.name}
-                </h3>
-                <p className="text-cyan-200 text-base sm:text-xl lg:text-xl mt-2 font-light font-mono">
-                  Combat Rating:{" "}
-                  <span className="font-bold bg-gradient-to-r from-magenta-400 to-cyan-400 bg-clip-text text-transparent">
-                    {champion.weeklyScore} SYNC_POINTS
-                  </span>
-                </p>
-                <p className="text-xs text-cyan-400 mt-2 font-mono animate-pulse">
-                  ▶ THREAT_LEVEL: MAXIMUM • KILL_STREAK:{" "}
-                  {champion.weeklyScore / 10}
-                </p>
-              </div>
-            </div>
+      {/* Announcements Section */}
+      <div className="animate-fade-in">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold text-white flex items-center neon-text-cyan">
+            <Megaphone className="mr-3 text-neon-yellow animate-pulse" />
+            Latest Announcements
+          </h2>
+          <div className="glass-button px-3 py-1 text-xs text-cyan-300 font-mono">
+            {announcements.length} updates
           </div>
         </div>
-      )}
-
-      {/* General Leaderboard */}
-      <div className="glass-card overflow-hidden animate-fade-in futuristic-grid">
-        <div className="p-6 border-b border-cyan-400/50">
-          <h3 className="text-2xl font-bold text-white flex items-center neon-text-cyan">
-            <Trophy className="mr-3 text-neon-yellow animate-pulse" />
-            Top 5 Players
-          </h3>
-        </div>
-
-        <div className="divide-y divide-white/10">
-          {topPlayers.map((player, index) => (
-            <div
-              key={player.id}
-              className="group flex items-center p-4 sm:p-6 hover:bg-cyan-500/10 transition-all duration-300 border-l-4 border-transparent hover:border-cyan-400/50"
-            >
-              <div
-                className={`
-                flex-shrink-0 flex items-center justify-center w-12 h-12 rounded-full font-black text-lg mr-6 shadow-lg
-                ${
-                  index === 0
-                    ? "glass-button bg-gradient-to-r from-magenta-500 to-cyan-500 text-white neon-text-cyan"
-                    : index === 1
-                      ? "glass-button bg-gradient-to-r from-gray-400 to-cyan-600 text-white neon-text-cyan"
-                      : index === 2
-                        ? "glass-button bg-gradient-to-r from-orange-500 to-cyan-500 text-white neon-text-green"
-                        : "glass-button text-cyan-300 font-mono"
-                }
-              `}
-              >
-                #{index + 1}
-              </div>
-
-              <img
-                src={player.avatar}
-                alt={player.name}
-                className="w-14 h-14 rounded-full object-cover mr-4 border-2 border-cyan-400/50 shadow-lg group-hover:scale-110 transition-transform duration-300 cyber-border"
-              />
-
-              <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-white text-lg truncate group-hover:text-neon-cyan transition-colors font-mono tracking-wide">
-                  {player.name}
-                </h4>
-                <div className="flex items-center space-x-4 text-xs text-cyan-200 mt-1 font-mono">
-                  <span className="flex items-center glass-button px-2 py-1 rounded-lg border-cyan-400/30">
-                    <Zap
-                      size={12}
-                      className="mr-1 text-neon-yellow flex-shrink-0 animate-pulse"
-                    />{" "}
-                    BURST:{player.beybladeStats?.burstFinishes}
-                  </span>
-                  <span className="flex items-center glass-button px-2 py-1 rounded-lg border-cyan-400/30">
-                    <RotateCw
-                      size={12}
-                      className="mr-1 text-neon-cyan flex-shrink-0 animate-pulse"
-                    />{" "}
-                    SPIN:{player.beybladeStats?.spinFinishes}
-                  </span>
-                </div>
-              </div>
-
-              <div className="text-right">
-                <span className="block font-black text-3xl bg-gradient-to-r from-magenta-400 to-cyan-400 bg-clip-text text-transparent tracking-tight flex-shrink-0 font-mono">
-                  {player.weeklyScore}
-                </span>
-                <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider font-mono">
-                  SYNC_RATE
-                </span>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {announcements.map((announcement) => (
+            <AnnouncementCard
+              key={announcement.id}
+              announcement={announcement}
+            />
           ))}
         </div>
       </div>
 
-      {/* Specialty Awards Grid */}
-      <div className="animate-fade-in">
-        <h3 className="text-3xl font-bold text-white mb-8 flex items-center neon-text-cyan">
-          <Medal className="mr-3 text-neon-yellow animate-pulse" />
-          Supreme Leaderboard
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <StatCard
-            title="Burst Specialist"
-            players={topBurst}
-            value={topBurst[0]?.beybladeStats?.burstFinishes}
-            icon={Zap}
-            color="red"
-            description="Most Explosive Finishes"
-            onClick={() =>
-              setSelectedStat({
-                title: "Burst Specialist",
-                players: topBurst,
-                icon: Zap,
-                color: "red",
-              })
-            }
-          />
-          <StatCard
-            title="Spin Master"
-            players={topSpin}
-            value={topSpin[0]?.beybladeStats?.spinFinishes}
-            icon={RotateCw}
-            color="blue"
-            description="Spin Longevity"
-            onClick={() =>
-              setSelectedStat({
-                title: "Spin Master",
-                players: topSpin,
-                icon: RotateCw,
-                color: "blue",
-              })
-            }
-          />
-          <StatCard
-            title="Ring-Out Pro"
-            players={topOver}
-            value={topOver[0]?.beybladeStats?.overFinishes}
-            icon={ArrowRightFromLine}
-            color="green"
-            description="Stadium Outs"
-            onClick={() =>
-              setSelectedStat({
-                title: "Ring-Out Pro",
-                players: topOver,
-                icon: ArrowRightFromLine,
-                color: "green",
-              })
-            }
-          />
-          <StatCard
-            title="Extreme Finisher"
-            players={topExtreme}
-            value={topExtreme[0]?.beybladeStats?.extremeFinishes}
-            icon={Flame}
-            color="purple"
-            description="High Impact Knockouts"
-            onClick={() =>
-              setSelectedStat({
-                title: "Extreme Finisher",
-                players: topExtreme,
-                icon: Flame,
-                color: "purple",
-              })
-            }
-          />
-        </div>
-      </div>
-
-      {/* Shop Section */}
-      <div className="animate-fade-in">
-        <h3 className="text-3xl font-bold text-white mb-8 flex items-center neon-text-cyan">
-          <ExternalLink className="mr-3 text-neon-cyan animate-pulse" />
-          Shop Pages
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          <ShopCard
-            title="Equipment Shop"
-            description="Browse our collection on Facebook"
-            icon={Facebook}
-            color="blue"
-            url="https://www.facebook.com/profile.php?id=100083603391159"
-          />
-          <ShopCard
-            title="Gallery"
-            description="Coming soon - Follow us for updates"
-            icon={Instagram}
-            color="purple"
-            url="#"
-            disabled
-          />
-          <ShopCard
-            title="Updates"
-            description="Coming soon - Latest news and drops"
-            icon={Twitter}
-            color="cyan"
-            url="#"
-            disabled
-          />
-          <ShopCard
-            title="Tutorials"
-            description="Coming soon - Product reviews and tutorials"
-            icon={Youtube}
-            color="red"
-            url="#"
-            disabled
-          />
-        </div>
-      </div>
-
-      {/* Specialty Modal */}
-      {selectedStat && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-            onClick={() => setSelectedStat(null)}
-          />
-          <div className="relative glass-modal w-full max-w-md overflow-hidden transform transition-all animate-scale-in">
-            {/* Modal Header */}
-            <div
-              className={`p-6 text-white bg-gradient-to-r ${
-                selectedStat.color === "red"
-                  ? "from-red-500 to-rose-600"
-                  : selectedStat.color === "blue"
-                    ? "from-blue-500 to-cyan-600"
-                    : selectedStat.color === "green"
-                      ? "from-green-500 to-emerald-600"
-                      : "from-purple-500 to-fuchsia-600"
-              }`}
-            >
-              <button
-                onClick={() => setSelectedStat(null)}
-                className="absolute top-4 right-4 p-2 glass-button hover:bg-white/30 rounded-full transition-colors text-white"
-              >
-                <X size={20} />
-              </button>
-              <div className="flex items-center space-x-3 mb-1">
-                <div className="p-3 glass-button">
-                  <selectedStat.icon size={24} />
-                </div>
-                <h3 className="text-2xl font-black uppercase tracking-wide">
-                  {selectedStat.title}
-                </h3>
-              </div>
-              <p className="text-white/80 text-sm font-medium">
-                Top Performers
-              </p>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-0 max-h-[60vh] overflow-y-auto">
-              <div className="divide-y divide-blue-400/20">
-                {selectedStat.players.map((player, index) => (
-                  <div
-                    key={player.id}
-                    className="group flex items-center p-3 sm:p-4 sm:p-6 hover:bg-blue-500/10 transition-all duration-300"
-                  >
-                    <div
-                      className={`
-                        flex-shrink-0 flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full font-black text-base sm:text-lg mr-4 sm:mr-6 shadow-lg
-                        ${
-                          index === 0
-                            ? "glass-button bg-gradient-to-r from-yellow-500 to-orange-500 text-white"
-                            : index === 1
-                              ? "glass-button bg-gradient-to-r from-gray-400 to-gray-600 text-white"
-                              : index === 2
-                                ? "glass-button bg-gradient-to-r from-orange-500 to-red-500 text-white"
-                                : "glass-button text-gray-300"
-                        }
-                      `}
-                    >
-                      {index + 1}
-                    </div>
-
-                    <img
-                      src={player.avatar}
-                      alt={player.name}
-                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover mr-3 sm:mr-4 border-3 border-white/30 shadow-lg group-hover:scale-110 transition-transform duration-300"
-                    />
-
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-bold text-white text-base sm:text-lg truncate group-hover:text-cyan-300 transition-colors">
-                        {player.name}
-                      </h4>
-                      <div className="flex items-center space-x-2 sm:space-x-4 text-xs text-blue-200 mt-1">
-                        {selectedStat.title === "Burst King" && (
-                          <span className="flex items-center glass-button px-1 sm:px-2 py-1 rounded-lg">
-                            <Zap size={10} className="text-yellow-400 mr-1" />
-                            {player.beybladeStats?.burstFinishes}
-                          </span>
-                        )}
-                        {selectedStat.title === "Spin Master" && (
-                          <span className="flex items-center glass-button px-1 sm:px-2 py-1 rounded-lg">
-                            <RotateCw
-                              size={10}
-                              className="text-cyan-400 mr-1"
-                            />
-                            {player.beybladeStats?.spinFinishes}
-                          </span>
-                        )}
-                        {selectedStat.title === "Ring-Out Pro" && (
-                          <span className="flex items-center glass-button px-1 sm:px-2 py-1 rounded-lg">
-                            <ArrowRightFromLine
-                              size={10}
-                              className="text-green-400 mr-1"
-                            />
-                            {player.beybladeStats?.overFinishes}
-                          </span>
-                        )}
-                        {selectedStat.title === "Extreme Finisher" && (
-                          <span className="flex items-center glass-button px-1 sm:px-2 py-1 rounded-lg">
-                            <Flame size={10} className="text-purple-400 mr-1" />
-                            {player.beybladeStats?.extremeFinishes}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="text-right ml-2 sm:ml-0">
-                      <span className="block font-black text-2xl sm:text-3xl bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent tracking-tight flex-shrink-0">
-                        {selectedStat.title === "Burst King"
-                          ? player.beybladeStats?.burstFinishes
-                          : selectedStat.title === "Spin Master"
-                            ? player.beybladeStats?.spinFinishes
-                            : selectedStat.title === "Ring-Out Pro"
-                              ? player.beybladeStats?.overFinishes
-                              : player.beybladeStats?.extremeFinishes}
-                      </span>
-                      <span className="text-xs font-bold text-blue-300 uppercase tracking-wider">
-                        Finishes
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="p-4 glass-card border-t border-blue-400/30 text-center">
-              <p className="text-xs text-blue-200 font-medium">
-                {selectedStat.players.length}{" "}
-                {selectedStat.players.length === 1 ? "Player" : "Players"} Tied
-              </p>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Game Schedule Section */}
+        <div className="animate-fade-in">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-white flex items-center neon-text-cyan">
+              <Calendar className="mr-3 text-neon-cyan animate-pulse" />
+              Weekly Tournaments
+            </h2>
+            <div className="glass-button px-3 py-1 text-xs text-cyan-300 font-mono">
+              Regular Schedule
             </div>
           </div>
+          <div className="space-y-4">
+            {/* PBBL Season 6 Info */}
+            <div className="glass-card p-6 transition-all duration-300 futuristic-grid border-2 border-magenta-400/30">
+              <div className="flex items-center justify-between mb-4">
+                <div className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-magenta-500 to-purple-600 text-white">
+                  LEAGUE
+                </div>
+                <div className="px-2 py-1 glass-button bg-magenta-500/20 text-magenta-300 rounded-full text-xs font-bold">
+                  SEASON 6
+                </div>
+              </div>
+              <h3 className="text-lg font-bold text-white mb-2">
+                Philippines BeyBlade League
+              </h3>
+              <p className="text-sm text-cyan-200 font-mono mb-3">
+                The official professional Beyblade league in the Philippines
+              </p>
+              <div className="flex items-center text-xs text-cyan-300 font-mono">
+                <Trophy size={14} className="mr-2 text-magenta-400" />
+                Ongoing Season 6 • Professional League
+              </div>
+            </div>
+
+            {upcomingGames.map((game) => (
+              <GameScheduleCard key={game.id} game={game} />
+            ))}
+          </div>
         </div>
+
+        {/* New Shop Stock Section */}
+        <div className="animate-fade-in">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold text-white flex items-center neon-text-cyan">
+              <ShoppingBag className="mr-3 text-neon-magenta animate-pulse" />
+              New Shop Arrivals
+            </h2>
+            <div className="glass-button px-3 py-1 text-xs text-cyan-300 font-mono">
+              {newArrivals.length} new items
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            {newArrivals.slice(0, 4).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in">
+        <StatCard
+          title="Active Players"
+          value={users.length.toString()}
+          icon={Users}
+          color="cyan"
+          change="+12%"
+          changeType="positive"
+        />
+        <StatCard
+          title="Tournaments"
+          value={tournaments.length.toString()}
+          icon={Trophy}
+          color="magenta"
+          change="+2"
+          changeType="positive"
+        />
+        <StatCard
+          title="Shop Items"
+          value={products.filter((p) => p.stock > 0).length.toString()}
+          icon={Package}
+          color="green"
+          change="+8"
+          changeType="positive"
+        />
+        <StatCard
+          title="Low Stock Alert"
+          value={lowStockItems.length.toString()}
+          icon={AlertCircle}
+          color="red"
+          change={lowStockItems.length > 0 ? "-3" : "0"}
+          changeType={lowStockItems.length > 0 ? "negative" : "neutral"}
+        />
+      </div>
+    </div>
+  );
+};
+
+// Helper Components
+// Helper Components
+const formatTimestamp = (date: Date) => {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffHours < 1) return "Just now";
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+};
+
+const AnnouncementCard: React.FC<{ announcement: Announcement }> = ({
+  announcement,
+}) => {
+  const typeStyles = {
+    urgent: "from-red-500 to-pink-600 text-white border-red-400/50",
+    info: "from-blue-500 to-cyan-600 text-white border-blue-400/50",
+    event: "from-purple-500 to-magenta-600 text-white border-purple-400/50",
+  };
+
+  const handleCardClick = () => {
+    if (announcement.title.includes("Tournament Results")) {
+      window.location.href = "/beyblade-ranked-games";
+    } else if (announcement.title.includes("Shop Update")) {
+      window.location.href = "/shop";
+    }
+  };
+
+  return (
+    <div 
+      onClick={handleCardClick}
+      className="glass-card p-6 transition-all duration-300 hover:scale-105 cursor-pointer futuristic-grid"
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div
+          className={`px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${typeStyles[announcement.type]}`}
+        >
+          {announcement.type.toUpperCase()}
+        </div>
+        <span className="text-xs text-cyan-400 font-mono">
+          {formatTimestamp(announcement.timestamp)}
+        </span>
+      </div>
+      <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+        {announcement.title}
+      </h3>
+      <p className="text-sm text-cyan-200 font-mono">{announcement.content}</p>
+      {announcement.author && (
+        <p className="text-xs text-cyan-400 mt-3 font-mono">
+          — {announcement.author}
+        </p>
       )}
+    </div>
+  );
+};
+
+const GameScheduleCard: React.FC<{ game: GameSchedule }> = ({ game }) => {
+  const gameDate = new Date(game.date);
+  const isToday = gameDate.toDateString() === new Date().toDateString();
+  const isFriday = game.title === "Basagan ng Bungo";
+  const isSunday = game.title === "Laglagan sa Langit";
+
+  const getDayLabel = () => {
+    if (isFriday) return "FRIDAY";
+    if (isSunday) return "SUNDAY";
+    return gameDate
+      .toLocaleDateString("en-US", { weekday: "long" })
+      .toUpperCase();
+  };
+
+  return (
+    <div
+      className={`glass-card p-6 transition-all duration-300 hover:scale-105 futuristic-grid ${
+        isToday ? "border-2 border-cyan-400/50" : ""
+      }`}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div className="px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-cyan-500 to-blue-600 text-white">
+          {getDayLabel()}
+        </div>
+        {isToday && (
+          <div className="px-2 py-1 glass-button bg-cyan-500/20 text-cyan-300 rounded-full text-xs font-bold animate-pulse">
+            TODAY
+          </div>
+        )}
+      </div>
+      <h3 className="text-xl font-bold text-white mb-2 neon-text-cyan">
+        {game.title}
+      </h3>
+      <div className="space-y-2 text-sm">
+        <div className="flex items-center text-cyan-200 font-mono">
+          <Calendar size={14} className="mr-2 text-cyan-400" />
+          {gameDate.toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "short",
+            day: "numeric",
+          })}
+        </div>
+        <div className="flex items-center text-cyan-200 font-mono">
+          <Clock size={14} className="mr-2 text-cyan-400" />
+          {game.time}
+        </div>
+        <div className="flex items-center text-cyan-200 font-mono">
+          <ExternalLink size={14} className="mr-2 text-cyan-400" />
+          {game.location}
+        </div>
+      </div>
+      <div className="mt-4 pt-3 border-t border-cyan-400/30">
+        <div className="flex items-center justify-between text-xs mb-2">
+          <span className="text-cyan-300 font-mono">Slots Available</span>
+          <span className="text-white font-bold">
+            {game.participants !== undefined &&
+            game.maxParticipants !== undefined
+              ? `${game.maxParticipants - game.participants}/${game.maxParticipants}`
+              : "Available"}
+          </span>
+        </div>
+        <p className="text-xs text-cyan-400 font-mono italic">
+          {isFriday && "Intense burst-finish tournament"}
+          {isSunday && "High-stakes knockout competition"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
+  const isLowStock = product.stock <= 3;
+
+  return (
+    <div className="glass-card p-4 transition-all duration-300 hover:scale-105 cursor-pointer futuristic-grid">
+      <div className="relative">
+        {isLowStock && (
+          <div className="absolute -top-2 -right-2 z-20">
+            <div className="glass-button bg-gradient-to-r from-red-500 to-pink-600 text-white px-2 py-1 rounded-full text-xs font-bold animate-pulse border border-red-400/50">
+              LOW
+            </div>
+          </div>
+        )}
+        <div className="h-24 bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-lg flex items-center justify-center mb-3 relative overflow-hidden">
+          <Package className="text-cyan-400/60" size={32} />
+        </div>
+        <h4 className="text-sm font-bold text-white mb-1 truncate">
+          {product.name}
+        </h4>
+        <p className="text-xs text-cyan-300 font-mono mb-2">
+          ₱{product.price.toLocaleString()}
+        </p>
+        <div className="flex items-center justify-between">
+          <span
+            className={`text-xs font-bold ${
+              isLowStock ? "text-red-400" : "text-green-400"
+            }`}
+          >
+            {product.stock} left
+          </span>
+          <span className="text-xs text-cyan-400 font-mono">
+            {product.category}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
 
 interface StatCardProps {
   title: string;
-  players: User[];
-  value: number | undefined;
+  value: string;
   icon: any;
-  color: "red" | "blue" | "green" | "purple";
-  description: string;
-  onClick: () => void;
+  color: string;
+  change: string;
+  changeType: "positive" | "negative" | "neutral";
 }
 
 const StatCard: React.FC<StatCardProps> = ({
   title,
-  players,
   value,
   icon: Icon,
   color,
-  description,
-  onClick,
+  change,
+  changeType,
 }) => {
   const colorStyles = {
-    red: "from-magenta-500 to-red-600 text-neon-magenta",
-    blue: "from-cyan-500 to-blue-600 text-neon-cyan",
+    cyan: "from-cyan-500 to-blue-600 text-neon-cyan",
+    magenta: "from-magenta-500 to-red-600 text-neon-magenta",
     green: "from-green-500 to-emerald-600 text-neon-green",
-    purple: "from-purple-500 to-magenta-600 text-neon-magenta",
+    red: "from-red-500 to-pink-600 text-neon-red",
   };
 
-  const bgGradient = `bg-gradient-to-br ${colorStyles[color]}`;
+  const changeColors = {
+    positive: "text-green-400",
+    negative: "text-red-400",
+    neutral: "text-gray-400",
+  };
 
   return (
-    <div
-      onClick={onClick}
-      className="glass-card p-4 sm:p-6 transition-all duration-300 hover:scale-105 cursor-pointer animate-scale-in futuristic-grid"
-    >
-      {/* Header */}
-      <div className="flex justify-between items-start mb-4">
+    <div className="glass-card p-6 transition-all duration-300 hover:scale-105 futuristic-grid">
+      <div className="flex items-center justify-between mb-4">
         <div
-          className={`p-2 sm:p-3 rounded-xl transition-transform group-hover:scale-110 duration-300 glass-button ${bgGradient} cyber-border animate-pulse`}
+          className={`p-3 rounded-xl glass-button bg-gradient-to-r ${colorStyles[color as keyof typeof colorStyles]} cyber-border`}
         >
-          <Icon size={20} className="sm:w-5 sm:h-5 text-white animate-pulse" />
+          <Icon size={20} className="text-white animate-pulse" />
         </div>
-        <div className="text-right flex-shrink-0">
-          <p className="text-xs font-semibold text-cyan-300 uppercase tracking-wider font-mono">
-            {title}
-          </p>
-          <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-cyan-400 to-magenta-400 bg-clip-text text-transparent font-mono">
-            {value || 0}
-          </p>
+        <div
+          className={`text-sm font-bold ${changeColors[changeType]} font-mono flex items-center`}
+        >
+          <TrendingUp size={12} className="mr-1" />
+          {change}
         </div>
       </div>
-
-      {/* Description */}
-      <p className="text-xs sm:text-sm text-cyan-200 mb-4 sm:mb-6 font-medium font-mono tracking-wide">
-        {description}
-      </p>
-
-      {/* Players Info */}
-      {players.length > 0 ? (
-        <div className="flex items-center pt-4 border-t border-blue-400/30">
-          <div className="flex -space-x-2 sm:-space-x-3 mr-2 sm:mr-3">
-            {players.slice(0, 3).map((p, i) => (
-              <img
-                key={p.id}
-                src={p.avatar}
-                alt={p.name}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white/30 shadow-lg flex-shrink-0 z-${
-                  30 - i * 10
-                }`}
-                title={p.name}
-              />
-            ))}
-            {players.length > 3 && (
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-white/30 shadow-lg glass-button flex items-center justify-center text-xs font-bold text-white z-0 flex-shrink-0">
-                +{players.length - 3}
-              </div>
-            )}
-          </div>
-
-          <div className="flex-1 min-w-0 ml-1 sm:ml-2">
-            <p className="text-xs sm:text-sm font-bold text-white leading-tight truncate group-hover:text-cyan-300 transition-colors">
-              {players.length === 1
-                ? players[0].name
-                : `${players.length} Players`}
-            </p>
-            <p className="text-[10px] text-blue-300 uppercase tracking-wide font-bold">
-              {players.length === 1 ? "Category Leader" : "Tied Leaders"}
-            </p>
-          </div>
-
-          {/* Decorative dot for single player */}
-          {players.length === 1 && (
-            <div
-              className={`w-3 h-3 rounded-full ${bgGradient} animate-pulse flex-shrink-0`}
-            ></div>
-          )}
-        </div>
-      ) : (
-        <div className="pt-4 border-t border-blue-400/30 text-sm text-blue-300">
-          No data available
-        </div>
-      )}
+      <div>
+        <p className="text-2xl font-bold text-white font-mono">{value}</p>
+        <p className="text-sm text-cyan-300 font-mono">{title}</p>
+      </div>
     </div>
-  );
-};
-
-interface ShopCardProps {
-  title: string;
-  description: string;
-  icon: any;
-  color: string;
-  url: string;
-  disabled?: boolean;
-}
-
-const ShopCard: React.FC<ShopCardProps> = ({
-  title,
-  description,
-  icon: Icon,
-  color,
-  url,
-  disabled = false,
-}) => {
-  const colorStyles = {
-    blue: "from-cyan-500 to-blue-600 text-neon-cyan",
-    purple: "from-purple-500 to-magenta-600 text-neon-magenta",
-    cyan: "from-cyan-500 to-green-600 text-neon-cyan",
-    red: "from-magenta-500 to-red-600 text-neon-magenta",
-  };
-
-  const bgGradient = `bg-gradient-to-br ${colorStyles[color as keyof typeof colorStyles]}`;
-
-  if (disabled) {
-    return (
-      <div className="glass-card p-4 sm:p-6 opacity-60 cursor-not-allowed futuristic-grid">
-        <div className="flex justify-between items-start mb-4">
-          <div
-            className={`p-2 sm:p-3 rounded-xl glass-button bg-gray-600 text-gray-400 cyber-border`}
-          >
-            <Icon size={20} className="sm:w-5 sm:h-5" />
-          </div>
-          <div className="text-right flex-shrink-0">
-            <p className="text-xs font-semibold text-cyan-300 uppercase tracking-wider font-mono">
-              {title}
-            </p>
-            <span className="inline-block px-2 py-0.5 glass-button text-cyan-400 text-[10px] font-bold rounded uppercase tracking-wider font-mono">
-              [ OFFLINE ]
-            </span>
-          </div>
-        </div>
-
-        <p className="text-xs sm:text-sm text-cyan-200 mb-4 sm:mb-6 font-medium font-mono">
-          {description}
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <a
-      href={url}
-      target="_blank"
-      rel="noreferrer"
-      className="glass-card p-4 sm:p-6 transition-all duration-300 hover:scale-105 cursor-pointer animate-scale-in block futuristic-grid"
-    >
-      <div className="flex justify-between items-start mb-4">
-        <div
-          className={`p-2 sm:p-3 rounded-xl transition-transform group-hover:scale-110 duration-300 glass-button ${bgGradient} cyber-border animate-pulse`}
-        >
-          <Icon size={20} className="sm:w-5 sm:h-5 text-white animate-pulse" />
-        </div>
-        <div className="text-right flex-shrink-0">
-          <p className="text-xs font-semibold text-cyan-300 uppercase tracking-wider font-mono">
-            {title}
-          </p>
-          <ExternalLink
-            size={14}
-            className="text-neon-cyan ml-1 animate-pulse"
-          />
-        </div>
-      </div>
-
-      <p className="text-xs sm:text-sm text-cyan-200 mb-4 sm:mb-6 font-medium font-mono tracking-wide">
-        {description}
-      </p>
-
-      <div className="flex items-center pt-4 border-t border-cyan-400/30">
-        <span className="text-xs font-bold text-neon-cyan uppercase tracking-wide font-mono animate-pulse">
-          [ ACCESS_TERMINAL ]
-        </span>
-      </div>
-    </a>
   );
 };
