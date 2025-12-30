@@ -47,8 +47,7 @@ export const Home: React.FC = () => {
     {
       id: "1",
       title: "🎉 Shop Update",
-      content:
-        "New Beyblade Burst generation products now available in the shop!",
+      content: "New Beyblade X products now available in the shop!",
       type: "info",
       timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
       author: "Shop Manager",
@@ -340,7 +339,7 @@ const AnnouncementCard: React.FC<{ announcement: Announcement }> = ({
   };
 
   return (
-    <div 
+    <div
       onClick={handleCardClick}
       className="glass-card p-6 transition-all duration-300 hover:scale-105 cursor-pointer futuristic-grid"
     >
@@ -453,8 +452,8 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
         )}
         <div className="h-24 bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-lg flex items-center justify-center mb-3 relative overflow-hidden">
           {product.imageUrl && !imageError ? (
-            <img 
-              src={product.imageUrl} 
+            <img
+              src={product.imageUrl}
               alt={product.name}
               className="w-full h-full object-cover"
               onError={() => setImageError(true)}
