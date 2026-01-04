@@ -84,7 +84,7 @@ export const Players: React.FC = () => {
         return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
       }
     });
-  }, [players, searchQuery, sortField, sortDirection, totalFinishes]);
+  }, [players, searchQuery, sortField, sortDirection]);
 
   const handleSort = useCallback((field: SortField) => {
     if (sortField === field) {
@@ -148,11 +148,22 @@ export const Players: React.FC = () => {
   }, []);
 
   const getComparisonData = useMemo(() => {
-    if (!comparePlayers[0] || !comparePlayers[1]) return [];
-    
     const [player1, player2] = comparePlayers;
-    const p1Stats = player1.beybladeStats || {};
-    const p2Stats = player2.beybladeStats || {};
+    
+    if (!player1 || !player2) return [];
+    
+    const p1Stats = player1.beybladeStats || {
+      spinFinishes: 0,
+      overFinishes: 0, 
+      burstFinishes: 0,
+      extremeFinishes: 0
+    };
+    const p2Stats = player2.beybladeStats || {
+      spinFinishes: 0,
+      overFinishes: 0,
+      burstFinishes: 0, 
+      extremeFinishes: 0
+    };
     
     return [
       { stat: 'Spin', [player1.name]: p1Stats.spinFinishes || 0, [player2.name]: p2Stats.spinFinishes || 0 },
@@ -161,6 +172,15 @@ export const Players: React.FC = () => {
       { stat: 'Extreme', [player1.name]: p1Stats.extremeFinishes || 0, [player2.name]: p2Stats.extremeFinishes || 0 },
     ];
   }, [comparePlayers]);
+
+  // Extract stats for comparison
+  const comparisonStats = useMemo(() => [
+    { label: 'Total Finishes', getValue: (p: User) => totalFinishes(p) },
+    { label: 'Spin Finishes', getValue: (p: User) => p.beybladeStats?.spinFinishes || 0 },
+    { label: 'Burst Finishes', getValue: (p: User) => p.beybladeStats?.burstFinishes || 0 },
+    { label: 'Over Finishes', getValue: (p: User) => p.beybladeStats?.overFinishes || 0 },
+    { label: 'Extreme Finishes', getValue: (p: User) => p.beybladeStats?.extremeFinishes || 0 },
+  ], [totalFinishes]);
 
   if (loading) return <LoadingScreen message="Loading players..." size="large" />;
 
@@ -331,13 +351,7 @@ export const Players: React.FC = () => {
                 {/* Stats Summary */}
                 <div className="space-y-3">
                   <h5 className="text-sm font-medium text-gray-300 mb-3">Head to Head Stats</h5>
-                  {useMemo(() => [
-                    { label: 'Total Finishes', getValue: (p: User) => totalFinishes(p) },
-                    { label: 'Spin Finishes', getValue: (p: User) => p.beybladeStats?.spinFinishes || 0 },
-                    { label: 'Burst Finishes', getValue: (p: User) => p.beybladeStats?.burstFinishes || 0 },
-                    { label: 'Over Finishes', getValue: (p: User) => p.beybladeStats?.overFinishes || 0 },
-                    { label: 'Extreme Finishes', getValue: (p: User) => p.beybladeStats?.extremeFinishes || 0 },
-                  ], [totalFinishes]).map(({ label, getValue }) => {
+                  {comparisonStats.map(({ label, getValue }) => {
                     const p1Value = getValue(comparePlayers[0]!);
                     const p2Value = getValue(comparePlayers[1]!);
                     const p1Wins = p1Value > p2Value;
