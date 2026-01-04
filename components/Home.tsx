@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../services/api";
+import { LoadingScreen } from "./LoadingScreen";
 import { User, Product, Tournament } from "../types";
 import {
   Calendar,
@@ -151,14 +152,7 @@ export const Home: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="h-full w-full bg-black relative overflow-hidden flex items-center justify-center futuristic-grid">
-        <div className="text-center">
-          <div className="cyber-loader mx-auto mb-4"></div>
-          <p className="text-cyan-400 mt-4 font-mono">Loading dashboard...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading dashboard..." size="large" />;
   }
 
   return (

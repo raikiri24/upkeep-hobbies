@@ -42,16 +42,19 @@ class ApiService {
           let wins = 0;
           let losses = 0;
 
-          if (standing.score !== undefined && standing.score !== null) {
+          if (standing.wins !== undefined && standing.losses !== undefined) {
+            // Use separate wins/losses fields if available
+            const parsedWins = parseInt(standing.wins, 10);
+            const parsedLosses = parseInt(standing.losses, 10);
+            if (!isNaN(parsedWins)) wins = parsedWins;
+            if (!isNaN(parsedLosses)) losses = parsedLosses;
+          } else if (standing.score !== undefined && standing.score !== null) {
             const parts = String(standing.score).split("-");
             const parsedWins = parseInt(parts[0], 10);
             const parsedLosses = parseInt(parts[1], 10);
 
             if (!isNaN(parsedWins)) wins = parsedWins;
             if (!isNaN(parsedLosses)) losses = parsedLosses;
-          } else if (standing.wins !== undefined) {
-            const parsed = parseInt(standing.wins, 10);
-            if (!isNaN(parsed)) wins = parsed;
           }
 
           totalPoints += wins;

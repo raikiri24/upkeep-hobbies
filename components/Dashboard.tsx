@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { LoadingScreen } from './LoadingScreen';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { api } from '../services/api';
 import { SalesData } from '../types';
@@ -17,7 +18,7 @@ export const Dashboard: React.FC = () => {
     fetchData();
   }, []);
 
-  if (loading) return <div className="p-8 text-center text-gray-500">Loading analytics...</div>;
+  if (loading) return <LoadingScreen message="Loading analytics..." size="large" />;
 
   const totalSales = salesData.reduce((acc, curr) => acc + curr.amount, 0);
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { LoadingScreen } from './LoadingScreen';
 import { User, Product } from '../types';
 import { Package, ExternalLink, AlertCircle, Search, Filter, X } from 'lucide-react';
 import { api } from '../services/api';
@@ -66,14 +67,7 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
   }, [products]);
 
   if (loading) {
-    return (
-      <div className="h-full w-full bg-black relative overflow-hidden flex items-center justify-center futuristic-grid">
-        <div className="text-center">
-          <div className="cyber-loader mx-auto mb-4"></div>
-          <p className="text-cyan-400 mt-4 font-mono">Loading shop catalog...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading shop catalog..." size="large" />;
   }
 
   if (error) {

@@ -202,10 +202,10 @@ export const BeybladeRankedGames: React.FC = () => {
               </div>
 
               <div className="text-right">
-                <span className="block font-black text-3xl bg-gradient-to-r from-magenta-400 to-cyan-400 bg-clip-text text-transparent tracking-tight flex-shrink-0 font-mono">
+                <span className="block font-black text-3xl text-cyan-400 tracking-tight flex-shrink-0 font-mono drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]">
                   {player.weeklyScore}
                 </span>
-                <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider font-mono">
+                <span className="text-xs font-bold text-cyan-200 uppercase tracking-wider font-mono">
                   POINTS
                 </span>
               </div>
@@ -397,7 +397,7 @@ export const BeybladeRankedGames: React.FC = () => {
                     </div>
 
                     <div className="text-right ml-2 sm:ml-0">
-                      <span className="block font-black text-2xl sm:text-3xl bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent tracking-tight flex-shrink-0">
+                      <span className="block font-black text-2xl sm:text-3xl text-cyan-400 tracking-tight flex-shrink-0 drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]">
                         {selectedStat.title === "Burst King"
                           ? player.beybladeStats?.burstFinishes
                           : selectedStat.title === "Spin Master"
@@ -472,7 +472,7 @@ const StatCard: React.FC<StatCardProps> = ({
           <p className="text-xs font-semibold text-cyan-300 uppercase tracking-wider font-mono">
             {title}
           </p>
-          <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-cyan-400 to-magenta-400 bg-clip-text text-transparent font-mono">
+          <p className="text-2xl sm:text-3xl font-black text-cyan-400 font-mono drop-shadow-[0_0_8px_rgba(0,255,255,0.8)]">
             {value || 0}
           </p>
         </div>
