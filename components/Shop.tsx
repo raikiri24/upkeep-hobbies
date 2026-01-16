@@ -93,7 +93,7 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
   };
 
   return (
-    <div className="h-full w-full bg-black relative overflow-hidden">
+    <div className="shop-container h-full w-full bg-black relative overflow-hidden">
       {/* Futuristic Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
       
@@ -112,7 +112,7 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
         <div className="h-px bg-gradient-to-r from-transparent via-pink-500 to-transparent opacity-40 mt-40 animate-pulse"></div>
       </div>
       
-      <div className="relative z-10 h-full w-full flex flex-col">
+      <div className="relative z-10 h-full w-full flex flex-col min-h-0">
         {/* Fixed Header */}
         <div className="flex-shrink-0 w-full bg-black/50 backdrop-blur-md border-b border-cyan-500/20">
           <div className="text-center py-3 sm:py-2">
@@ -244,7 +244,7 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
         </div>
 
         {/* Products Container */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="products-container flex-1 min-h-0 overflow-y-auto overscroll-contain">
           {filteredProducts.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-center">
               <Package className="text-cyan-400/50 mb-4" size={48} />
@@ -252,11 +252,11 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
               <p className="text-cyan-500 text-sm mt-2">Try adjusting your filters or search terms</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1 sm:gap-2 py-2 w-full h-full px-2 sm:px-6 md:px-12">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1 sm:gap-2 py-2 w-full px-2 sm:px-6 md:px-12 auto-rows-max content-start">
               {filteredProducts.map((product) => (
               <div 
                 key={product.id} 
-                className="group relative flex flex-col h-[320px] sm:h-[340px] md:h-[360px] min-w-0"
+                className="group relative flex flex-col min-h-[280px] sm:h-[340px] md:h-[360px] min-w-0"
               >
                  {/* Product Card */}
                  <div className="relative glass-card rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] border border-cyan-500/20 overflow-hidden flex flex-col h-full futuristic-grid">
@@ -282,8 +282,8 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
                     </div>
                   </div>
                   
-                  {/* Product Image Section */}
-                  <div className="h-32 sm:h-36 md:h-40 bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center relative overflow-hidden flex-shrink-0">
+                   {/* Product Image Section */}
+                   <div className="h-24 sm:h-36 md:h-40 bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center relative overflow-hidden flex-shrink-0">
                     {/* Tech Pattern Overlay */}
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,255,255,0.05)_50%,transparent_100%)]"></div>
                     <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_48%,rgba(0,255,255,0.05)_50%,transparent_52%)] bg-[size:20px_20px]"></div>
@@ -303,42 +303,42 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
                       <Package className="text-cyan-400/60 group-hover:text-cyan-400 transition-colors duration-300 relative z-10" size={40} />
                     )}
                     
-                    {/* Category Label */}
-                    <div className="absolute bottom-2 left-2">
-                      <span className="px-3 py-1 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-xl text-cyan-300 text-xs font-bold rounded-full shadow-lg border border-cyan-500/30">
-                        {product.category}
-                      </span>
-                    </div>
+                     {/* Category Label */}
+                     <div className="absolute bottom-1 sm:bottom-2 left-1 sm:left-2">
+                       <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-gradient-to-r from-cyan-500/20 to-purple-500/20 backdrop-blur-xl text-cyan-300 text-xs font-bold rounded-full shadow-lg border border-cyan-500/30">
+                         {product.category}
+                       </span>
+                     </div>
                   </div>
                   
-                  {/* Product Details */}
-                  <div className="p-4 relative z-10 flex flex-col flex-1">
-                    <h3 className="text-base font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors duration-300 leading-tight">
-                      {product.name}
-                    </h3>
-                    <p className="text-gray-500 text-xs mb-3 font-mono">SKU: {product.sku}</p>
-                    
-                    {/* Price Section */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <p className="text-xl font-bold text-white">
-                          ₱{product.price.toLocaleString()}
-                        </p>
-                      </div>
-                      {product.stock > 0 && (
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-green-400">
-                            {product.stock} units
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                   {/* Product Details */}
+                   <div className="p-2 sm:p-4 relative z-10 flex flex-col flex-1">
+                     <h3 className="text-sm sm:text-base font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors duration-300 leading-tight line-clamp-2">
+                       {product.name}
+                     </h3>
+                     <p className="text-gray-500 text-xs mb-2 sm:mb-3 font-mono">SKU: {product.sku}</p>
+                     
+                     {/* Price Section */}
+                     <div className="flex items-center justify-between mb-2 sm:mb-4">
+                       <div>
+                         <p className="text-base sm:text-xl font-bold text-white">
+                           ₱{product.price.toLocaleString()}
+                         </p>
+                       </div>
+                       {product.stock > 0 && (
+                         <div className="text-right">
+                           <p className="text-xs sm:text-sm font-bold text-green-400">
+                             {product.stock}
+                           </p>
+                         </div>
+                       )}
+                     </div>
 
                      {/* Order Button */}
                      <button
                        onClick={() => handleOrderClick(product.name, product.sku)}
                        disabled={product.stock === 0}
-                       className={`w-full py-2 px-3 glass-button rounded-lg font-bold text-sm transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl relative overflow-hidden mt-auto ${
+                       className={`w-full py-1.5 sm:py-2 px-2 sm:px-3 glass-button rounded-lg font-bold text-xs sm:text-sm transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl relative overflow-hidden mt-auto ${
                          product.stock > 0
                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400/50 hover:border-cyan-400/80'
                            : 'bg-gray-800 text-gray-500 cursor-not-allowed border-gray-700'
@@ -346,10 +346,10 @@ export const Shop: React.FC<ShopProps> = ({ user }) => {
                      >
                       {/* Button Glow Effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 to-purple-400/20 opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-                      <div className="relative flex items-center justify-center space-x-2">
-                        <ExternalLink size={14} />
-                        <span>{product.stock > 0 ? 'ORDER NOW' : 'OUT OF STOCK'}</span>
-                      </div>
+                       <div className="relative flex items-center justify-center space-x-1 sm:space-x-2">
+                         <ExternalLink size={12} className="sm:w-4 sm:h-4" />
+                         <span className="text-xs sm:text-sm">{product.stock > 0 ? 'ORDER' : 'SOLD OUT'}</span>
+                       </div>
                     </button>
                   </div>
                 </div>

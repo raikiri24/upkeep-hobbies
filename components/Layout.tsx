@@ -202,7 +202,7 @@ export const Layout: React.FC<LayoutProps> = ({
       {/* Main Content */}
       <main className="flex-1 overflow-hidden">
         {/* Mobile Header */}
-        <header className="glass-card sticky top-0 z-10 m-2 sm:m-4 p-3 sm:p-4 flex items-center justify-between md:hidden animate-fade-in futuristic-grid scanning">
+        <header className="glass-card sticky top-0 z-50 m-2 sm:m-4 p-3 sm:p-4 flex items-center justify-between md:hidden animate-fade-in futuristic-grid scanning shadow-2xl border-b border-cyan-500/40">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <button
               onClick={() => setIsMobileMenuOpen(true)}
