@@ -38,7 +38,7 @@ const PBBLTeamUpdates: React.FC = () => {
     },
     {
       opponent: "Weatherlight X",
-      teamScore: "2-3 (Lose)",
+      teamScore: "3-2 (Lose)",
       players: [
         { name: "Skade", points: 5, opponentScore: 2, result: "Win" },
         { name: "Jonas great", points: 2, opponentScore: 6, result: "Lose" },
@@ -283,7 +283,7 @@ const PBBLTeamUpdates: React.FC = () => {
               </div>
               <div className="glass-button cyber-border rounded-xl p-6">
                 <div className="text-4xl font-bold text-cyan-400 font-mono mb-2">
-                  {havocStats.wins}W-{havocStats.losses}L
+                  5W-1L
                 </div>
                 <div className="text-sm text-cyan-300 font-mono">
                   Match Record
@@ -307,7 +307,7 @@ const PBBLTeamUpdates: React.FC = () => {
               </div>
               <div className="glass-button cyber-border rounded-xl p-6">
                 <div className="text-4xl font-bold text-cyan-400 font-mono mb-2">
-                  {longhornsStats.wins}W-{longhornsStats.losses}L
+                  2W-6L
                 </div>
                 <div className="text-sm text-cyan-300 font-mono">
                   Match Record
