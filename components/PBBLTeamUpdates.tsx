@@ -27,7 +27,7 @@ const PBBLTeamUpdates: React.FC = () => {
   const havocMatches: Match[] = [
     {
       opponent: "Whimsy",
-      teamScore: "2-3 (Loss)",
+      teamScore: "2-3 (Lose)",
       players: [
         { name: "Onimaru", points: 5, opponentScore: 0, result: "Win" },
         { name: "Jonas great", points: 5, opponentScore: 1, result: "Win" },
@@ -38,7 +38,7 @@ const PBBLTeamUpdates: React.FC = () => {
     },
     {
       opponent: "Weatherlight X",
-      teamScore: "3-2 (Win)",
+      teamScore: "2-3 (Lose)",
       players: [
         { name: "Skade", points: 5, opponentScore: 2, result: "Win" },
         { name: "Jonas great", points: 2, opponentScore: 6, result: "Lose" },
