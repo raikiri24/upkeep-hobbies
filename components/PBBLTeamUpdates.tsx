@@ -74,10 +74,10 @@ const PBBLTeamUpdates: React.FC = () => {
       teamScore: "3-2 (Win)",
       players: [
         { name: "Xtra Rice", points: 5, opponentScore: 2, result: "Win" },
-        { name: "Skade", points: 4, opponentScore: 2, result: "Win" },
+        { name: "Skade", points: 2, opponentScore: 4, result: "Lose" },
         { name: "QT", points: 4, opponentScore: 2, result: "Win" },
         { name: "HJ", points: 4, opponentScore: 0, result: "Win" },
-        { name: "Rae", points: 5, opponentScore: 2, result: "Win" },
+        { name: "Rae", points: 2, opponentScore: 5, result: "Lose" },
       ],
     },
     {
