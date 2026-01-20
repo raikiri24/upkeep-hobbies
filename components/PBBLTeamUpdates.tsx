@@ -29,7 +29,7 @@ const PBBLTeamUpdates: React.FC = () => {
       opponent: "Whimsy",
       teamScore: "2-3 (Lose)",
       players: [
-        { name: "Onimaru", points: 5, opponentScore: 0, result: "Win" },
+        { name: "Onimaru", points: 0, opponentScore: 5, result: "Lose" },
         { name: "Jonas great", points: 5, opponentScore: 1, result: "Win" },
         { name: "Rae", points: 2, opponentScore: 4, result: "Lose" },
         { name: "Xtra Rice", points: 5, opponentScore: 2, result: "Win" },
@@ -53,7 +53,7 @@ const PBBLTeamUpdates: React.FC = () => {
       players: [
         { name: "Skade", points: 5, opponentScore: 3, result: "Win" },
         { name: "Xtra Rice", points: 4, opponentScore: 3, result: "Win" },
-        { name: "HJ", points: 4, opponentScore: 0, result: "Win" },
+        { name: "HJ", points: 0, opponentScore: 4, result: "Lose" },
         { name: "Bell", points: 2, opponentScore: 4, result: "Lose" },
         { name: "Rae", points: 4, opponentScore: 1, result: "Win" },
       ],
@@ -65,8 +65,8 @@ const PBBLTeamUpdates: React.FC = () => {
         { name: "Xtra Rice", points: 6, opponentScore: 3, result: "Win" },
         { name: "Skade", points: 4, opponentScore: 1, result: "Win" },
         { name: "QT", points: 4, opponentScore: 0, result: "Win" },
-        { name: "Rae", points: 3, opponentScore: 4, result: "Lose" },
-        { name: "Jacob", points: 4, opponentScore: 0, result: "Win" },
+        { name: "Rae", points: 4, opponentScore: 3, result: "Win" },
+        { name: "Jacob", points: 0, opponentScore: 4, result: "Win" },
       ],
     },
     {
