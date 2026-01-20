@@ -66,7 +66,7 @@ const PBBLTeamUpdates: React.FC = () => {
         { name: "Skade", points: 4, opponentScore: 1, result: "Win" },
         { name: "QT", points: 4, opponentScore: 0, result: "Win" },
         { name: "Rae", points: 4, opponentScore: 3, result: "Win" },
-        { name: "Jacob", points: 0, opponentScore: 4, result: "Win" },
+        { name: "Jacob", points: 0, opponentScore: 4, result: "Lose" },
       ],
     },
     {
